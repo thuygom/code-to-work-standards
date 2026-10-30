@@ -112,3 +112,25 @@
 - [결정 기록](../templates/decision.md)
 - [노트·회의록 합성 사례](../examples/SYN-N-001.md)
 - [기업·제품 연결 합성 사례](../examples/SYN-B-001.md)
+
+
+## 실행용 CSV와 집계
+
+Python 3.10 이상에서 `python3 scripts/summarize_evaluation.py`를 실행합니다. 표준 라이브러리만 사용하며 외부 API는 호출하지 않습니다. 기본 CSV는 헤더만 있고 실측값은 없습니다.
+
+- cases.csv: case_id, source_type(real/synthetic), output_type(N1/N2/B1/B2), split(development/holdout/example_only), reference. 공개 원문 대신 승인된 가공 사례 참조를 기록합니다.
+- runs.csv: evaluation_round, case_id, variant(baseline/proposed), output_type, status(completed/held/failed/pending), attempts, supported_claims, total_claims, required_correct, required_total, review_seconds, edit_seconds, elapsed_seconds, cost, currency.
+- 한 행은 평가 회차 × 고유 사례 × 조건입니다. 동일 키의 중복은 오류입니다. 재시도는 새 행을 만들지 않고 attempts와 시간·비용에 누적합니다.
+- 접수한 모든 사례를 pending 행부터 등록합니다. 도구는 CSV 밖의 누락 사례를 알 수 없으므로 평가 담당자가 모집단·분모와 대조합니다.
+- 숫자 빈칸은 미측정입니다. 0과 다릅니다. 지원 주장/전체 주장과 필수 항목 정답/전체는 쌍으로 입력합니다. 근거 없는 사실 주장도 전체 주장에 포함합니다.
+- 회차·출력유형·현행/제안·개발/보류·실제/합성을 분리합니다. example_only는 항상 제외하고 synthetic은 기본 제외합니다. 합성 집계는 --include-synthetic으로 명시합니다.
+- 비율의 분모가 0이면 N/A입니다. 부분 측정은 측정 건수를 함께 표시합니다. 시간 평균은 측정된 사례만의 값입니다.
+- 완료당 비용은 같은 집계 묶음의 모든 시도 비용 / 완료한 고유 사례 수입니다. 비용 누락·통화 혼합·완료 0이면 관련 값은 N/A입니다.
+
+```bash
+python3 scripts/check_repository.py
+python3 scripts/summarize_evaluation.py
+python3 scripts/summarize_evaluation.py --cases evaluation/cases.csv --runs evaluation/runs.csv
+```
+
+구조 검사 통과는 현업 품질·의미 정확성·공개 권한 검증을 뜻하지 않습니다.
