@@ -1,6 +1,6 @@
 # 기여 웹사이트
 
-공개 주소: https://standard.jhkim3ispark.work/
+공개 주소: https://standard.linh.day/
 
 README의 원본 일러스트, 아이보리·먹색·오렌지, 종이 카드와 탭을 사용한 정적 웹사이트입니다. 프레임워크·외부 CDN·분석 추적기 없이 HTML/CSS/JavaScript로 동작하며 기존 나눔고딕과 OFL 라이선스를 함께 배포합니다. 다른 디자인 사이트의 컴포넌트를 복제하지 않았습니다.
 
@@ -32,7 +32,7 @@ node scripts/serve_website.mjs
 
 ## Cloudflare 운영
 
-사용자 systemd 서비스 `work-standards-web.service`와 `work-standards-tunnel.service`로 실행합니다. ingress는 `standard.jhkim3ispark.work`를 `http://127.0.0.1:4318`에 연결하며 나머지 hostname에는 404를 반환합니다. 운영 config는 git에서 제외되는 `local-deploy/`, tunnel 자격증명은 사용자의 `~/.cloudflared/`에만 둡니다. 서비스 단위는 `~/.config/systemd/user/`에 있습니다. 기존 다른 서비스의 ingress는 변경하지 않습니다.
+사용자 systemd 서비스 `work-standards-web.service`와 `work-standards-tunnel.service`로 실행합니다. ingress는 `standard.linh.day`를 `http://127.0.0.1:4318`에 연결하며 기존 `standard.jhkim3ispark.work` 주소도 전환 기간 동안 같은 사이트를 제공하며, 그 외 hostname에는 404를 반환합니다. 운영 config는 git에서 제외되는 `local-deploy/`, tunnel 자격증명은 사용자의 `~/.cloudflared/`에만 둡니다. 서비스 단위는 `~/.config/systemd/user/`에 있습니다. 기존 다른 서비스의 ingress는 변경하지 않습니다.
 
 ```bash
 python3 scripts/build_website.py

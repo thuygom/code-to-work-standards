@@ -8,7 +8,7 @@
 
 [PDF 27쪽 읽기](reports/workflow-standards-v0.1.pdf) · [PDF 해설](docs/pdf-reading-guide.md) · [English](README.en.md) · [기여 시작하기](CONTRIBUTING.md) · [이슈 제안](https://github.com/thuygom/code-to-work-standards/issues/new/choose)
 
-**[기여 웹사이트 열기 ↗](https://standard.jhkim3ispark.work/)** — 분야를 둘러보고, 사례를 작성하거나 텍스트 파일을 불러와 GitHub 이슈로 제안할 수 있습니다. [웹사이트 개발·운영 안내](website/README.md)
+**[기여 웹사이트 열기 ↗](https://standard.linh.day/)** — 분야를 둘러보고, 사례를 작성하거나 텍스트 파일을 불러와 GitHub 이슈로 제안할 수 있습니다. [웹사이트 개발·운영 안내](website/README.md)
 
 ## 에이전트는 일을 끝냈는데, 우리의 일은 왜 남아 있을까요?
 
