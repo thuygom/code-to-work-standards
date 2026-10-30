@@ -1,0 +1,1288 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[margin=18mm]{geometry}
+\usepackage{fontspec}
+% Reproducible bundled OFL font. Malgun Gothic and Times New Roman are not bundled.
+\setmainfont[Path=fonts/,BoldFont=NanumGothic-Bold.ttf]{NanumGothic-Regular.ttf}
+\XeTeXlinebreaklocale "ko"
+\XeTeXlinebreakskip=0pt plus 1pt
+\usepackage[table]{xcolor}
+\usepackage{array,longtable,enumitem,amsmath}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepackage{titlesec}
+\usepackage[unicode,hidelinks]{hyperref}
+\hypersetup{pdftitle={회의 노트와 기업 영업 분석 업무 표준화 v0.1},pdfauthor={Code to Work Standards contributors},pdfsubject={SOP PRD Map of Work와 현업 검증 계획}}
+\definecolor{headgray}{HTML}{ECECEC}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcommand{\Hline}{\noalign{\hrule height 1.5pt}}
+\setlength{\tabcolsep}{2.4mm}
+\setlength{\arrayrulewidth}{0.5pt}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\LTpre}{5pt}
+\setlength{\LTpost}{7pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\renewcommand{\baselinestretch}{1.34}
+\setlist[itemize]{leftmargin=4.5mm,itemsep=4pt,topsep=3pt,parsep=0pt}
+\titleformat{\section}{\fontsize{18}{24}\selectfont\bfseries}{}{0pt}{}
+\titleformat{\subsection}{\fontsize{11.8}{16}\selectfont\bfseries}{}{0pt}{}
+\titlespacing*{\section}{0pt}{0pt}{13pt}
+\titlespacing*{\subsection}{0pt}{9pt}{5pt}
+\emergencystretch=2em
+\widowpenalty=10000
+\clubpenalty=10000
+\pagestyle{empty}
+
+% Process maps for the AX work-standard draft.
+% Required packages: tikz; libraries arrows.meta, positioning, calc.
+% Intended font: document's NanumGothic. Each drawing is 162 x 123 mm.
+% Role lanes describe types of work; they do not count model calls.
+
+\newcommand{\MeetingMap}{%
+\begin{tikzpicture}[
+  x=1mm,y=1mm,
+  axlane/.style={draw=black!22,fill=black!2,line width=.35pt},
+  axhead/.style={font=\fontsize{9}{11}\selectfont\bfseries,align=center},
+  axbox/.style={draw=black!70,fill=white,line width=.45pt,
+    rounded corners=.6mm,minimum width=43mm,text width=40mm,
+    minimum height=11mm,inner sep=1.3mm,outer sep=0mm,
+    align=center,font=\fontsize{8.2}{10}\selectfont},
+  axstate/.style={axbox,fill=black!7,dashed},
+  axflow/.style={-{Stealth[length=1.7mm,width=1.2mm]},line width=.6pt,draw=black!85},
+  axback/.style={axflow,dashed,draw=black!65},
+  axlabel/.style={font=\fontsize{7.1}{8.7}\selectfont,fill=white,
+    inner sep=.5mm,align=center}
+]
+  \path[use as bounding box] (0,-123) rectangle (162,0);
+  \draw[axlane] (0,-123) rectangle (52,0);
+  \draw[axlane] (55,-123) rectangle (107,0);
+  \draw[axlane] (110,-123) rectangle (162,0);
+  \fill[black!10] (0,-10) rectangle (52,0);
+  \fill[black!10] (55,-10) rectangle (107,0);
+  \fill[black!10] (110,-10) rectangle (162,0);
+  \node[axhead] at (26,-5) {현업};
+  \node[axhead] at (81,-5) {의미 처리};
+  \node[axhead] at (136,-5) {도구와 시스템};
+
+  \node[axbox] (m-goal) at (27,-21)
+    {목적·독자 확정\\결과 형식·완료 기준};
+  \node[axbox] (m-input) at (135,-21)
+    {원문·청크 접수\\녹음·텍스트·자료};
+  \node[axbox] (m-check) at (135,-40)
+    {전사·입력 점검\\누락·화자·청크 확인};
+  \node[axbox] (m-facts) at (81,-57)
+    {안건·결정·행동 근거\\원문 위치·불확실성};
+  \node[axbox] (m-draft) at (81,-76)
+    {노트·회의록 초안\\형식·필수 항목 반영};
+  \node[axbox] (m-review) at (27,-76)
+    {현업 검토\\사실·결정·후속 조치};
+  \node[axstate] (m-wait) at (27,-96)
+    {검토 대기\\담당자·재개 조건};
+  \node[axbox] (m-save) at (135,-96)
+    {저장·선택 후속 등록\\대상·권한·결과 확인};
+  \node[axbox] (m-result) at (27,-115)
+    {이용 결과 수집\\수정·오류·후속 완료};
+
+  \draw[axflow] (m-goal.east) -- (m-input.west);
+  \draw[axflow] (m-input.south) -- (m-check.north);
+  \draw[axflow] (m-check.south) |- (m-facts.east);
+  \draw[axflow] (m-facts.south) -- (m-draft.north);
+  \draw[axflow] (m-draft.west) -- (m-review.east);
+
+  % Return to evidence and regenerate only when review identifies a problem.
+  \draw[axback] (m-review.north) -- (27,-57)
+    -- node[axlabel,above] {반려·보완} (m-facts.west);
+
+  % Waiting is an explicit state, not a separate approval at every step.
+  \draw[axflow] (m-review.south) -- (27,-86)
+    -- node[axlabel,above,pos=.62] {검토 완료} (135,-86)
+    -- (m-save.north);
+  \fill[black!80] (27,-86) circle (.55mm);
+  \draw[axback] (27,-86) -- (m-wait.north);
+  \draw[axback] (m-wait.west) -- (3,-96)
+    -- node[axlabel,right] {재개} (3,-76) -- (m-review.west);
+
+  \draw[axflow] (m-save.south) -- (135,-115)
+    -- node[axlabel,above,pos=.53] {반영 결과·인계} (m-result.east);
+\end{tikzpicture}%
+}
+
+\newcommand{\CompanyMap}{%
+\begin{tikzpicture}[
+  x=1mm,y=1mm,
+  axlane/.style={draw=black!22,fill=black!2,line width=.35pt},
+  axhead/.style={font=\fontsize{9}{11}\selectfont\bfseries,align=center},
+  axbox/.style={draw=black!70,fill=white,line width=.45pt,
+    rounded corners=.6mm,minimum width=43mm,text width=40mm,
+    minimum height=11mm,inner sep=1.3mm,outer sep=0mm,
+    align=center,font=\fontsize{8.2}{10}\selectfont},
+  axstate/.style={axbox,fill=black!7,dashed},
+  axflow/.style={-{Stealth[length=1.7mm,width=1.2mm]},line width=.6pt,draw=black!85},
+  axback/.style={axflow,dashed,draw=black!65},
+  axlabel/.style={font=\fontsize{7.1}{8.7}\selectfont,fill=white,
+    inner sep=.5mm,align=center}
+]
+  \path[use as bounding box] (0,-123) rectangle (162,0);
+  \draw[axlane] (0,-123) rectangle (52,0);
+  \draw[axlane] (55,-123) rectangle (107,0);
+  \draw[axlane] (110,-123) rectangle (162,0);
+  \fill[black!10] (0,-10) rectangle (52,0);
+  \fill[black!10] (55,-10) rectangle (107,0);
+  \fill[black!10] (110,-10) rectangle (162,0);
+  \node[axhead] at (26,-5) {현업};
+  \node[axhead] at (81,-5) {의미 처리};
+  \node[axhead] at (136,-5) {도구와 시스템};
+
+  \node[axbox] (c-goal) at (27,-20)
+    {목적·대상 법인 확정\\영업 질문·분석 범위};
+  \node[axbox] (c-source) at (135,-20)
+    {근거 수집\\외부 출처·내부 자료};
+  \node[axbox] (c-facts) at (81,-39)
+    {기업·제품 사실\\출처·시점·상충 확인};
+  \node[axbox] (c-needs) at (81,-58)
+    {니즈 가설\\확인 사실과 구분};
+  \node[axbox] (c-product) at (135,-58)
+    {자사제품 자료 준비\\기능·조건·제약};
+  \node[axbox] (c-fit) at (81,-78)
+    {적합성 후보\\가능 범위·추가 질문};
+  \node[axbox] (c-review) at (27,-78)
+    {제품·영업 검토\\사실·기능·제안 조건};
+  \node[axstate] (c-wait) at (27,-58)
+    {검토 대기·보완\\추가 근거·조건 확인};
+  \node[axbox] (c-action) at (27,-98)
+    {후속 행동 결정\\확인·제안·보류};
+  \node[axbox] (c-handoff) at (135,-98)
+    {인계·등록\\후속 담당·완료 상태};
+  \node[axbox] (c-update) at (135,-116)
+    {정보·결과 갱신\\출처 시점·변경 이력};
+
+  \draw[axflow] (c-goal.east) -- (c-source.west);
+
+  % Evidence collection branches into target facts and own-product preparation.
+  \draw[axflow] (c-source.south) -- (135,-39) -- (c-facts.east);
+  \fill[black!80] (135,-39) circle (.55mm);
+  \draw[axflow] (135,-39) -- (c-product.north);
+  \draw[axflow] (c-facts.south) -- (c-needs.north);
+
+  % The suitability candidate needs both the hypothesis and product evidence.
+  \draw[axflow] (c-needs.south) -- (81,-69) -- (c-fit.north);
+  \draw[axflow] (c-product.south) -- (135,-69) -- (81,-69);
+  \fill[black!80] (81,-69) circle (.55mm);
+  \node[axlabel,above] at (113,-69) {두 자료 대조};
+  \draw[axflow] (c-fit.west) -- (c-review.east);
+
+  \draw[axback] (c-review.north)
+    -- node[axlabel,right] {대기·반려} (c-wait.south);
+  \draw[axback] (c-wait.north) -- (27,-39)
+    -- node[axlabel,above] {보완·재개} (c-facts.west);
+
+  \draw[axflow] (c-review.south) -- (c-action.north);
+  \draw[axflow] (c-action.east)
+    -- node[axlabel,above] {결정한 범위만} (c-handoff.west);
+  \draw[axflow] (c-handoff.south) -- (c-update.north);
+\end{tikzpicture}%
+}
+
+\begin{document}
+\section*{회의 노트와 기업 영업 분석 업무 표준화}
+\addcontentsline{toc}{section}{회의 노트와 기업 영업 분석 업무 표준화}
+SOP PRD Map of Work와 현업 검증 계획
+
+
+\noindent\textbf{작업본 v0.1} 2026년 10월 30일 KST. 현업 관찰과 실제 사례 검증 전 초안입니다. 작성 목적은 두 업무의 수행 절차와 수용 기준을 정립하고, 이후 파이프라인 개선 요구를 도출하는 것입니다.
+
+
+\subsection*{이번 작업의 결론}
+현재 저장소에는 입력 처리, 근거 수집, 의미 분석, 초안 생성과 일부 검증 규칙이 이미 있습니다. 품질 정체를 해소하려면 현업이 어떤 정보를 먼저 보고, 무엇을 중요하게 판단하며, 언제 결론을 보류하고, 어느 결과를 쓸 만하다고 인정하는지 명세해야 합니다. 이를 실제 사례로 확인한 뒤 자동화 범위를 결정합니다.
+
+
+\begin{itemize}
+\item 회의·노트 업무는 원문에서 결정과 후속 행동을 복원하고 필요한 독자에게 전달하는 일을 표준화합니다.
+\item 기업·영업 분석은 기업 사실을 확인한 뒤 고객 니즈 가설과 자사제품의 실제 기능을 연결하고 다음 영업 행동을 정하는 일을 표준화합니다.
+\item Map of Work에는 인계·대기·반려·재개를, SOP에는 단계별 판단을, PRD에는 검증 가능한 시스템 요구를 기록합니다.
+\item 현업의 실제 사례와 수정 이유를 근거로 v0.1을 갱신합니다. 일주일의 종료 기준은 합의된 절차와 검증 기록이며, 개선율을 미리 약속하지 않습니다.
+\end{itemize}
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{31.56mm}|L{58.39mm}|L{67.85mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{업무군} & \textbf{결과물별 분기} & \textbf{완료를 판단하는 질문}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{업무군} & \textbf{결과물별 분기} & \textbf{완료를 판단하는 질문}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+N 노트와 회의록 & N1 개인·모바일 노트 / N2 팀 공유 회의록 & 사건·결정·미결·후속 행동을 정확히 이해하고 사용할 수 있습니까?\\\hline
+B 기업과 영업 분석 & B1 기업·제품 사실 리포트 / B2 자사제품 연결 검토 & 근거를 확인하고, 제품 적합성을 검토하고, 다음 영업 행동을 선택할 수 있습니까?\\\hline
+\end{longtable}}
+\noindent\textbf{적용 범위} 기존 문서·코드의 읽기, 현업 관찰안, SOP·PRD·업무 지도와 평가 설계입니다. 저장소와 운영 서비스의 변경은 별도 구현 과제로 남깁니다.
+
+
+\noindent\textbf{다음 판단 시점} 오늘 v0.1을 시작점으로 두고, 11월 2일부터 6일까지 5업무일 검증을 제안합니다. 실제 사례와 검토자 확보 시점에 맞춰 조정합니다.
+
+
+\clearpage
+\section*{1 문서의 역할과 사용 방법}
+\addcontentsline{toc}{section}{1 문서의 역할과 사용 방법}
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{28.40mm}|L{64.70mm}|L{64.70mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{문서} & \textbf{답해야 할 질문} & \textbf{이번 작업의 산출물}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{문서} & \textbf{답해야 할 질문} & \textbf{이번 작업의 산출물}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+Map of Work & 누가 어떤 계기로 시작하고, 무엇을 전달하며, 어디에서 기다리거나 되돌아갑니까? & 업무군별 흐름도, 단계 ID, 담당자·시스템·인계·대기·반려 표\\\hline
+SOP & 같은 일을 다시 할 때 어떤 순서와 판단 기준으로 수행합니까? & N 12단계, B 14단계의 입력·행동·판단·완료·예외\\\hline
+PRD & 도구가 어떤 동작과 결과를 제공해야 현업이 일을 마칠 수 있습니까? & 업무군별 12개 요구사항과 정상·경계·실패 수용 기준\\\hline
+R\&R & 실제로 수행하는 사람, 결과 책임자, 검토자와 자동화 수단은 무엇입니까? & 사람의 책임표와 코드·API·RPA·전문 모델·LLM 배정표\\\hline
+검증 기록 & 어떤 사례에서 어떤 이유로 절차를 바꾸었습니까? & 관찰·평가·수정·변경 결정과 버전 연결\\\hline
+\end{longtable}}
+SOP는 Standard Operating Procedure, PRD는 Product Requirements Document입니다. SOP는 업무 수행 방법을, PRD는 제품이 충족할 동작과 결과를 설명합니다. 현업 절차를 길게 적었다고 곧바로 좋은 PRD가 되지는 않습니다. 요구사항에는 확인 가능한 수용 조건을 붙입니다. [E1][E3]
+
+
+첨부 자료의 핵심도 이 순서입니다. 원본 4·9쪽은 실제 업무와 예외를 SOP·업무 지도로 정리하고, 22쪽은 목적·입출력·데이터·완료 조건을 PRD로 구체화하도록 설명합니다. 5·11쪽의 역할 분담과 업무 완료 관리를 두 업무의 인계·검토·재개 기준에 반영했습니다. [D1]
+
+
+\subsection*{상태를 읽는 기준}
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{29.38mm}|L{133.82mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{표기} & \textbf{의미}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{표기} & \textbf{의미}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+확인 & 첨부 자료, 현재 저장소 문서 또는 정적 코드에서 읽은 내용입니다.\\\hline
+제안 & 현업이 수행해 보고 수정할 v0.1 절차·요구사항·역할입니다.\\\hline
+미확인 & 실제 운영 버전, 현업 승인 방식, 실제 품질·시간 등 아직 관찰하지 않은 내용입니다.\\\hline
+\end{longtable}}
+아래 SOP·PRD·R\&R·업무 지도는 모두 제안입니다. 코드에서 확인한 사실은 2장과 근거 목록에 구분했습니다. 현업 관찰 후 현재 업무 지도와 개선 업무 지도를 따로 확정합니다. 현재 코드의 호출 순서만으로 실제 현업의 수행 순서를 대신하지 않습니다.
+
+
+\subsection*{문서를 갱신하는 순서}
+실제 사례와 수정 이유를 받으면 해당 단계의 판단 기준을 보완합니다. 그 기준이 바뀌면 PRD 수용 조건과 평가 사례도 함께 바꿉니다. 개선 결과를 본 뒤 유리한 기준으로 합격선을 옮기지 않습니다. 변경 결정에는 적용 범위와 남은 한계를 함께 남깁니다.
+
+
+\clearpage
+\section*{2 저장소에서 확인한 출발점}
+\addcontentsline{toc}{section}{2 저장소에서 확인한 출발점}
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{28.40mm}|L{67.85mm}|L{61.54mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{대상} & \textbf{확인한 내용} & \textbf{표준화에서 이어갈 일}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{대상} & \textbf{확인한 내용} & \textbf{표준화에서 이어갈 일}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+IScribe & 완성 음성·청크 음성, 전사·화자분리, 노트 분석과 별도 문서형 회의록 경로가 있습니다. [G1–G3] & 노트와 회의록의 독자·필수 내용·분량·검토 기준을 각각 확정합니다.\\\hline
+writingAgent & 인물·요약·할 일·일정·답장 초안과 기존 노트 수정 계약이 있습니다. 완료 추정은 사용자 확인 후보입니다. [G4–G5] & 제안·합의·완료, 수행자·기한, 답장 모드와 일반 기록의 업무 규칙을 현업 사례와 대조합니다.\\\hline
+WebSearchAgent & 실제 저장소는 GomCrawl입니다. 검색·API·크롤링 결과를 공통 근거 구조로 모읍니다. [G6–G8] & 검색 결과를 실제 근거로 채택하는 기준과 기업 동일성·자료 최신성을 정합니다.\\\hline
+TieRPT & 기업 맥락·홈페이지·공시·PDF 등을 이용한 분석·작성·발행 검증 경로가 있습니다. [G9–G11] & 기업 사실의 품질과 고객 니즈·제품 적합성 판단의 품질을 나누어 봅니다.\\\hline
+\end{longtable}}
+\subsection*{이번 주에 먼저 정리할 불일치와 경계}
+\begin{itemize}
+\item pre\_audio\_analysis는 중간 청크의 전사 처리와 마지막 청크의 의미 분석을 구분합니다. 청크 success를 완성된 회의록으로 해석하면 안 됩니다. [G3]
+\item 답장 모드에서는 요약·할 일·완료 후보를 생략하는 계약이 있습니다. 한 API 이름 아래의 서로 다른 업무 목적을 별도 분기로 봅니다. [G4]
+\item GomCrawl의 기사 관계가치 분류에는 LLM 배치 판단 경로가 있습니다. 축하·안부·대화 소재는 고객의 구매 니즈가 확인됐다는 의미가 아닙니다. [G8]
+\item TieRPT main 코드에는 adaptive-v3 경로가 있으나 문서는 미배포로 표기합니다. 현재 운영 배포 여부는 별도 확인 대상이며, 구현 확인을 운영 동작이나 성능 달성으로 확대하지 않습니다. [G11][G12]
+\item 자사제품의 승인된 기능·제약과 고객 근거를 연결하는 전용 단계는 이번 열람 범위에서 확인하지 못했습니다. B2는 현업 검증을 거쳐 설계할 영역입니다.
+\end{itemize}
+\noindent\textbf{기준 스냅샷} 2026년 10월 30일 열람. TieRPT main은 255fb5239baf, GomCrawl master는 a519ea5935a8에서 확인했습니다. IScribe·writingAgent는 열람 당시 master 문서와 코드입니다. 운영 실행과 실측 품질 평가는 이번에 수행하지 않았습니다.
+
+
+\clearpage
+\section*{3 품질 정체를 진단하는 방법}
+\addcontentsline{toc}{section}{3 품질 정체를 진단하는 방법}
+“모델이 더 이상 잘하지 못한다”는 가설과 “현업 기준이 충분히 전달되지 않았다”는 가설을 분리합니다. 먼저 실패한 결과 한 건에서 잘못된 입력, 빠진 판단 단계, 불명확한 규칙, 부족한 근거, 실행 오류와 평가 기준을 차례로 확인합니다.
+
+
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{28.40mm}|L{61.54mm}|L{67.85mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{원인 가설} & \textbf{관찰할 실패} & \textbf{구분하는 실험}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{원인 가설} & \textbf{관찰할 실패} & \textbf{구분하는 실험}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+입력 & 전사 누락·화자 혼동·문서 일부만 추출 & 사람이 보정한 동일 입력으로 다시 비교\\\hline
+업무 절차 & 결정 판정·제품 검토·인계 단계 누락 & 현업이 수동으로 거치는 단계를 재현\\\hline
+업무 규칙 & 좋은 요약·필수 내용·보류 기준 불일치 & 현업이 합의한 기준을 고정해 비교\\\hline
+근거와 맥락 & 동명 기업·다른 기간·검색 발췌만 사용 & 검증된 동일 근거 묶음을 제공\\\hline
+실행과 상태 & 필드 유실·중복·잘못된 저장·완료 표시 & 고정 결과를 사용해 정형 처리만 점검\\\hline
+평가 & 검토자마다 좋은 결과가 다름 & 필수 사실·허용 표현·불확실성을 조정\\\hline
+모델 수행 & 올바른 자료와 규칙에서도 의미 오류 반복 & 조건을 고정한 반복 확인과 대안 비교\\\hline
+\end{longtable}}
+\subsection*{사람이 일하는 과정을 보는 질문}
+\begin{itemize}
+\item 최근 실제로 끝낸 한 건을 보여 달라고 요청합니다. 평소 방식으로 처리하게 하고 자료·화면·검색어·수정 내용을 관찰합니다.
+\item 어디부터 읽었고 무엇은 건너뛰었는지, 어떤 정보 때문에 판단을 바꿨는지 묻습니다.
+\item 자동화가 없어도 필요한 확인과, 현재 시스템의 부족함 때문에 추가로 하는 일을 구분합니다.
+\item 실수했을 때 누구에게 무엇을 확인하고 어디부터 다시 시작하는지 확인합니다.
+\item 같은 절차를 다른 담당자가 수행해도 같은 사실·결정 상태·완료 조건을 재현할 수 있는지 봅니다.
+\end{itemize}
+실제 환경에서 자료와 도구를 사용하는 모습을 관찰하는 방법은 현업의 누락된 단계와 우회 작업을 찾는 데 유용합니다. [E2] 관찰 기록에는 수행한 일과 담당자가 설명한 이상적인 절차를 나눠 적습니다.
+
+
+\clearpage
+\section*{4 노트와 회의록의 업무 지도}
+\addcontentsline{toc}{section}{4 노트와 회의록의 업무 지도}
+SOP-N v0.1  |  N1 개인·모바일 노트  /  N2 팀 공유 회의록
+
+
+\begin{center}\MeetingMap\end{center}
+현업 검증용 후보 지도입니다. 음성 입력은 전사·화자 점검을 거치고 텍스트 입력은 해당 단계를 건너뜁니다. 중간 결과를 최종본으로 사용하지 않습니다. 개인 노트의 자기 확인과 팀 공유 회의록의 검토 절차는 구분합니다.
+
+
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{37.87mm}|L{59.96mm}|L{59.96mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{인계 지점} & \textbf{필수 전달물} & \textbf{대기·반려와 재개}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{인계 지점} & \textbf{필수 전달물} & \textbf{대기·반려와 재개}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+입력 확보 → 의미 해석 & 원문 위치, 기준시각, 참여자 후보, 미확인 구간 & 중요 구간의 전사 오류는 원음·발화자 확인 후 재개\\\hline
+초안 → 현업 검토 & 결정·미결·액션과 각각의 근거 & 상충·누락은 해당 안건으로 되돌림\\\hline
+검토 → 저장·후속 등록 & 확정 범위, 대상 ID, 선택한 후속 조치 & 저장 실패는 기존 실행 확인 후 재개\\\hline
+이용 → 절차 개선 & 수정 전후와 이유, 원문 근거, 업무 영향 & 개별 표현 선호와 공통 판단 규칙을 구분\\\hline
+\end{longtable}}
+\clearpage
+\section*{5 노트와 회의록 SOP 입력과 근거}
+\addcontentsline{toc}{section}{5 노트와 회의록 SOP 입력과 근거}
+단계 N01–N04  |  기본 책임은 기록 작성자와 해당 기록의 업무책임자가 합의합니다.
+
+
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{N01 목적과 독자 정하기}
+\noindent\textbf{입력과 시작} 회의·메일·메모가 발생하고 기록할 목적이 있습니다.
+
+
+\noindent\textbf{수행과 판단} 개인 기억용, 팀 공유, 보고용 중 사용처를 정하고 독자가 다음에 해야 할 행동을 적습니다. 답장 작성은 별도 업무로 분기합니다.
+
+
+\noindent\textbf{산출물과 완료} 목적·독자·필수 산출물·완료 조건을 한 문장씩 작성합니다.
+
+
+\noindent\textbf{예외와 재개} 목적이 불명확하면 형식부터 선택하지 않고 사용처를 확인합니다.
+
+
+\noindent\textbf{책임과 수단} 기록 작성자가 수행하고 결과를 사용하는 업무책임자가 기준을 확인합니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{N02 원문과 기준 맥락 확보}
+\noindent\textbf{입력과 시작} 본문·첨부·녹음, 회의 일시, 알려진 참여자와 용어를 받습니다.
+
+
+\noindent\textbf{수행과 판단} 원문을 보존하고 본문·첨부·과거 맥락을 구분합니다. 녹음 기준시각과 시간대를 확인하고 참여자 정보의 출처를 남깁니다.
+
+
+\noindent\textbf{산출물과 완료} 입력 목록과 원문 위치, 알려진 정보와 모르는 정보가 구분됩니다.
+
+
+\noindent\textbf{예외와 재개} 누락된 첨부·기준일·동명이인은 보완 목록으로 넘깁니다. 임의로 채우지 않습니다.
+
+
+\noindent\textbf{책임과 수단} 작성자가 자료를 제공하고 코드/API가 접수·형식·접근 범위를 확인합니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{N03 접수와 진행 상태 확인}
+\noindent\textbf{입력과 시작} 텍스트, 완성 음성 파일 또는 같은 녹음의 순차 청크를 받습니다.
+
+
+\noindent\textbf{수행과 판단} 요청과 녹음의 식별자를 보존하고 중복과 청크 순서를 확인합니다. 처리 중·전사 임시본·최종 분석 결과를 구분합니다.
+
+
+\noindent\textbf{산출물과 완료} 접수 ID, 누적 원문, 현재 단계와 재개 지점을 기록합니다.
+
+
+\noindent\textbf{예외와 재개} 응답 유실 시 기존 작업을 먼저 확인합니다. 부분 실패는 성공한 원문과 산출물을 보존하고, 해당 API의 재시도 계약에 따라 단계별 재처리 또는 전체 재실행 범위를 정합니다.
+
+
+\noindent\textbf{책임과 수단} 코드/API가 상태·중복·재시도를 관리하고 앱 운영 담당자가 결과 연결을 책임집니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{N04 전사와 화자 및 핵심 용어 확인}
+\noindent\textbf{입력과 시작} 음성 입력은 전사·화자분리 결과를 사용하고 텍스트는 원문을 사용합니다.
+
+
+\noindent\textbf{수행과 판단} 이름·금액·날짜·결정·담당자 구간을 우선 대조합니다. 화자 번호를 실명이나 책임자로 자동 확정하지 않습니다.
+
+
+\noindent\textbf{산출물과 완료} 사용 가능한 원문과 미확인 구간 목록을 남깁니다.
+
+
+\noindent\textbf{예외와 재개} 핵심 구간의 잡음·겹침은 원음 재청취 또는 참석자 확인으로 보완합니다.
+
+
+\noindent\textbf{책임과 수단} ASR·화자분리 모델은 추정하고 작성자가 중요한 불확실성을 확인합니다. LLM의 문장 보정으로 원음을 대체하지 않습니다.
+
+
+\endgroup
+\clearpage
+\section*{6 노트와 회의록 SOP 의미와 초안}
+\addcontentsline{toc}{section}{6 노트와 회의록 SOP 의미와 초안}
+단계 N05–N08  |  한 단계는 한 번의 LLM 호출을 뜻하지 않습니다.
+
+
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{N05 안건과 업무 맥락 묶기}
+\noindent\textbf{입력과 시작} 확보한 원문과 안건·프로젝트 정보입니다.
+
+
+\noindent\textbf{수행과 판단} 독립된 업무를 나누되 같은 결과를 만들기 위한 세부 행동은 묶습니다. 원문 구간을 안건에 연결하고 과거 기억을 현재 발언의 증거로 사용하지 않습니다.
+
+
+\noindent\textbf{산출물과 완료} 안건별 근거 묶음과 사건의 범위가 정리됩니다.
+
+
+\noindent\textbf{예외와 재개} 경계가 모호하면 분리 후보로 남기고 작성자가 맥락을 확인합니다.
+
+
+\noindent\textbf{책임과 수단} LLM이 묶음을 제안하고 작성자가 안건 경계를 검토합니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{N06 결정과 요청 및 미결 구분}
+\noindent\textbf{입력과 시작} 제안 발화와 수락·거절·보류·정정 등 후속 반응을 함께 봅니다.
+
+
+\noindent\textbf{수행과 판단} 논의·제안·합의·확정·승인 대기를 구분합니다. “검토해 보시죠”의 문장형만으로 지시나 합의로 확정하지 않습니다.
+
+
+\noindent\textbf{산출물과 완료} 안건별 결론, 상태, 판단 이유와 근거를 기록합니다.
+
+
+\noindent\textbf{예외와 재개} 상충하거나 권한이 불명확한 경우 결정 미확정으로 두고 확인 대상을 정합니다.
+
+
+\noindent\textbf{책임과 수단} LLM이 상태 후보를 제시하고 회의 진행자 또는 업무책임자가 중요한 이견을 정리합니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{N07 후속 행동과 일정 분리}
+\noindent\textbf{입력과 시작} 결정·요청과 수행자·기한·완료 조건에 대한 근거입니다.
+
+
+\noindent\textbf{수행과 판단} 독립된 완료 결과마다 행동을 만들고 요청자와 수행자를 구분합니다. 업무 마감일과 참석 일정, 일정 조율 업무를 나눕니다.
+
+
+\noindent\textbf{산출물과 완료} 행동·담당자·기한 또는 조건·산출물·근거·확인 상태를 갖춘 후보를 만듭니다.
+
+
+\noindent\textbf{예외와 재개} 담당자나 날짜가 없으면 미지정으로 남깁니다. 상대의 행동을 사용자 자신의 업무로 바꾸지 않습니다.
+
+
+\noindent\textbf{책임과 수단} LLM이 후보를 만들고 실제 업무 소유자가 확정합니다. 날짜 형식·ID는 코드가 검사합니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{N08 목적별 기록 초안 작성}
+\noindent\textbf{입력과 시작} 안건·결정·미결·행동과 원문 근거입니다.
+
+
+\noindent\textbf{수행과 판단} 노트는 결과·미결·다음 행동을 짧게 보여줍니다. 회의록은 불참자가 판단 이유를 이해하도록 맥락을 남깁니다. 같은 설명은 중복하지 않습니다.
+
+
+\noindent\textbf{산출물과 완료} 선택한 출력 유형의 초안과 상세 근거가 분리됩니다.
+
+
+\noindent\textbf{예외와 재개} 분량이 넘으면 중요도를 적용하고 필수 항목 누락 여부를 검토합니다. 빈 양식을 채우기 위해 사실을 만들지 않습니다.
+
+
+\noindent\textbf{책임과 수단} LLM은 내용 작성, 코드·템플릿은 형식·렌더링을 담당합니다. 작성자가 사용 목적을 확인합니다.
+
+
+\endgroup
+\clearpage
+\section*{7 노트와 회의록 SOP 검토와 완료}
+\addcontentsline{toc}{section}{7 노트와 회의록 SOP 검토와 완료}
+단계 N09–N12  |  검토·저장·공유는 목적에 필요한 범위로 정의합니다.
+
+
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{N09 원문과 품질 대조}
+\noindent\textbf{입력과 시작} 초안, 근거 구간, 현업이 정한 필수 사실 목록입니다.
+
+
+\noindent\textbf{수행과 판단} 중요 결정·담당자·기한·숫자·미결을 원문과 대조합니다. 형식 검사와 의미 검토를 나누고 불참자가 다음 행동을 알 수 있는지 봅니다.
+
+
+\noindent\textbf{산출물과 완료} 수용·수정·확인 필요의 판정과 사유가 남습니다.
+
+
+\noindent\textbf{예외와 재개} 실제 결정을 반대로 쓰거나 새로운 약속을 만든 경우 해당 안건을 반려합니다.
+
+
+\noindent\textbf{책임과 수단} 코드는 형식·연결 검사를, 현업 검토자는 의미와 실무 적합성 판단을 맡습니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{N10 수정 범위와 확정 상태 정하기}
+\noindent\textbf{입력과 시작} 초안과 사용자의 수정 지시·추가 사실입니다.
+
+
+\noindent\textbf{수행과 판단} 추가 기록과 기존 사실의 정정을 구분하고 영향받는 부분만 고칩니다. 확정된 일정·업무 변경은 변경안을 보여주고 해당 책임자가 결정합니다.
+
+
+\noindent\textbf{산출물과 완료} 변경 전후, 반영 범위, 미해결 충돌과 새 버전 후보를 남깁니다.
+
+
+\noindent\textbf{예외와 재개} 요약 수정이 무관한 할 일까지 바꾸면 반려합니다. 버전 충돌은 최신 내용과 다시 비교합니다.
+
+
+\noindent\textbf{책임과 수단} LLM은 수정 초안을 만들고 분석 서비스는 수정 대상 밖 항목·기존 ID·확정 객체를 보호합니다. 앱·시스템 백엔드는 버전 저장과 충돌·복구를 관리하며, 변경 확정은 해당 업무 소유자가 합니다. [G13]
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{N11 저장과 선택한 후속 조치 수행}
+\noindent\textbf{입력과 시작} 확정한 기록과 저장·공유·등록 대상입니다.
+
+
+\noindent\textbf{수행과 판단} 앱이 계정과 대상 ID를 검증해 저장합니다. 일정 등록·할 일 완료·메일 발송은 선택한 업무 범위와 권한에 따라 실행하고 결과를 확인합니다.
+
+
+\noindent\textbf{산출물과 완료} 저장 버전과 필요한 후속 조치의 성공·실패·대기 상태가 확인됩니다.
+
+
+\noindent\textbf{예외와 재개} 전송·저장 실패는 결과를 조회하고 중복 없이 재개합니다. 초안 생성 성공을 공유 완료로 표시하지 않습니다.
+
+
+\noindent\textbf{책임과 수단} 앱/API 또는 필요한 RPA가 실행하고 기록·일정·업무의 소유자가 범위를 정합니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{N12 이용 결과를 절차에 반영}
+\noindent\textbf{입력과 시작} 현업 최종 수정본, 반려 이유와 실제 후속 결과입니다.
+
+
+\noindent\textbf{수행과 판단} 표현 취향과 사실·판단·절차 오류를 나눠 기록합니다. 반복되는 문제는 SOP와 수용 조건 변경 후보로 올리고 다른 사례로 재확인합니다.
+
+
+\noindent\textbf{산출물과 완료} 오류 사례, 개선 가설, 채택·보류 결정과 문서 버전을 남깁니다.
+
+
+\noindent\textbf{예외와 재개} 한 사례를 모든 상사·권유문·고객에 적용하는 일반 규칙으로 만들지 않습니다.
+
+
+\noindent\textbf{책임과 수단} 현업이 수정 이유를 제공하고 AX 담당이 규칙을 정리하며 업무책임자가 적용 범위를 합의합니다.
+
+
+\endgroup
+\clearpage
+\section*{8 노트와 회의록 PRD 내용 요구}
+\addcontentsline{toc}{section}{8 노트와 회의록 PRD 내용 요구}
+PRD-N v0.1  |  요구사항은 구현 방식보다 사용자에게 필요한 동작과 검증 조건을 먼저 정의합니다.
+
+
+{\fontsize{9.5}{14.06}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{18.94mm}|L{55.23mm}|L{83.63mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{ID} & \textbf{필요 동작} & \textbf{수용 조건과 검증 예}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{ID} & \textbf{필요 동작} & \textbf{수용 조건과 검증 예}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+N-01 & 출력 목적과 유형을 구분합니다. & 같은 원문을 노트·회의록으로 요청하면 각 유형의 합의된 필수 항목을 충족합니다. 답장 모드는 별도 상태로 식별합니다.\\\hline
+N-02 & 중요 정보에서 원문으로 돌아갈 수 있습니다. & 결정·핵심 수치·업무 담당자·기한의 근거 위치를 검토자가 열어 확인할 수 있습니다. 근거가 없으면 미확인으로 표시합니다.\\\hline
+N-03 & 논의·제안·합의·확정·미결을 구분합니다. & 단순 제안은 후속 수락·확정 근거 없이 합의로 바뀌지 않습니다. 명시된 요청·지시는 보존하고 수락 여부는 별도로 표시합니다. 정정 시 현재 상태와 정정 근거를 확인할 수 있습니다.\\\hline
+N-04 & 인물과 업무 책임을 구분합니다. & 발화자·요청자·수행자가 다른 사례에서 각각의 역할을 유지합니다. 동명이인을 단일 ID로 임의 확정하지 않습니다.\\\hline
+N-05 & 행동·마감·일정을 구분합니다. & 보고서 제출 마감이 참석 일정으로 등록되지 않습니다. 근거가 없는 담당자·기한만 미지정으로 남깁니다. 명시된 요청·지시의 대상과 기한은 보존하고, 합의·수락 여부와 잠정·확정 상태를 별도로 표시합니다. [G14]\\\hline
+N-06 & 기록의 목적에 맞는 핵심을 보존합니다. & 현업이 표시한 필수 결정·미결·후속 행동은 빠지지 않습니다. 표현은 여러 답을 허용하며 불필요한 반복은 검토자가 줄일 수 있습니다.\\\hline
+\end{longtable}}
+\subsection*{요약을 평가하는 구체 질문}
+\begin{itemize}
+\item 핵심 2\textasciitilde{}3문장을 읽은 사람이 무엇이 결정됐고 무엇이 남았는지 말할 수 있습니까?
+\item 필수 사실을 압축하면서 조건이나 주체를 바꾸지 않았습니까?
+\item 원문을 다시 읽어야만 알 수 있는 필수 후속 행동이 남아 있습니까?
+\item 회의록은 불참자에게 필요한 배경을 남기고, 모바일 노트는 사용자의 빠른 재확인 목적을 충족합니까?
+\end{itemize}
+숫자·길이·한도를 새 업무 기준으로 그대로 복사하지 않습니다. 현재 코드의 한도와 현업이 필요한 정보량을 비교해 N-06의 수용 기준으로 합의합니다. 저장소의 기존 정성 지표를 초기 검토표로 활용합니다. [G5]
+
+
+\clearpage
+\section*{9 노트와 회의록 PRD 상태와 연동}
+\addcontentsline{toc}{section}{9 노트와 회의록 PRD 상태와 연동}
+{\fontsize{9.5}{14.06}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{18.94mm}|L{55.23mm}|L{83.63mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{ID} & \textbf{필요 동작} & \textbf{수용 조건과 검증 예}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{ID} & \textbf{필요 동작} & \textbf{수용 조건과 검증 예}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+N-07 & 임시 결과와 최종 결과를 구분합니다. & 청크 입력 중에는 전사 임시본임을 알 수 있고, 최종 입력·분석 성공이 확인된 뒤에만 최종 분석 초안으로 취급합니다.\\\hline
+N-08 & 부분 실패와 복구를 보여줍니다. & 전사는 성공하고 요약만 실패하면 성공한 전사와 실패 단계·원인을 보존합니다. 재사용 가능한 범위를 확인해 재처리하며, 단계별 재실행 미지원은 추가 구현 요구로 구분합니다.\\\hline
+N-09 & 기존 기록의 수정 범위를 지킵니다. & 요약만 수정하면 무관한 확정 일정·할 일·노트 ID가 유지됩니다. 추가 사실과 기존 확정 항목의 충돌은 구분됩니다.\\\hline
+N-10 & 추천과 실제 반영을 구분합니다. & 완료 후보·일정 후보·답장 초안 생성만으로 기존 상태 변경·등록·발송이 일어나지 않습니다. 선택한 조치의 결과는 별도 확인합니다.\\\hline
+N-11 & 업무 완료와 검토 상태를 관리합니다. & 개인 노트는 합의된 자기 확인·저장 조건으로, 팀 회의록은 합의된 공유·확정 조건으로 완료를 판정합니다. 불필요한 추가 승인 단계를 강제하지 않습니다.\\\hline
+N-12 & 개선의 근거를 기록합니다. & 사례별 초안·수정본·수정 사유·검토 시간·사용한 규칙 버전·실행 상태를 연결해 비교할 수 있습니다.\\\hline
+\end{longtable}}
+\subsection*{평가 사례 예시 N EV 001}
+\noindent\textbf{가상 입력} “금요일까지 검토해 보면 어떨까요?”라는 제안 뒤 “담당자를 정한 다음 일정부터 확인하죠”라는 답이 이어집니다.
+
+
+\noindent\textbf{기대 결과} 검토 제안과 담당자·일정 미확정을 남깁니다. 금요일 완료가 확정됐다고 쓰거나 특정 참석자를 수행자로 지정하면 반려합니다.
+
+
+\noindent\textbf{연결} N06·N07 → PRD-N-03·05 → EV-N-001 → 실행 결과 → 변경 결정. 이 예시는 평가 설계를 설명하기 위한 합성 사례이며 실제 성과 계산에 포함하지 않습니다.
+
+
+\subsection*{이번 주에 합의할 정책}
+어떤 내용은 반드시 요약에 남겨야 하는지, 잠정 일정의 허용 범위, 확정된 업무의 수정 절차, 개인 노트와 팀 회의록의 검토 책임을 실제 사례로 정합니다. API의 현재 표현과 현업 표시 정책이 다르면 차이를 기록하고 별도 구현 요구로 연결합니다.
+
+
+\clearpage
+\section*{10 기업과 영업 분석의 업무 지도}
+\addcontentsline{toc}{section}{10 기업과 영업 분석의 업무 지도}
+SOP-B v0.1  |  B1 기업·제품 사실 리포트  /  B2 자사제품 연결과 영업 조치
+
+
+\begin{center}\CompanyMap\end{center}
+현업 검증용 후보 지도입니다. B1은 검증한 기업·제품 사실을 전달하는 범위에서 끝날 수 있습니다. B2는 고객 니즈 가설과 자사제품의 기능·제약을 추가로 검토하고, 영업 담당자가 다음 행동을 선택합니다.
+
+
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{39.45mm}|L{59.96mm}|L{58.39mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{인계 지점} & \textbf{필수 전달물} & \textbf{대기·반려와 재개}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{인계 지점} & \textbf{필수 전달물} & \textbf{대기·반려와 재개}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+조사 → 사실 검토 & 대상 법인, 출처, 기간, 원문 위치 & 동명 기업·부분 OCR·상충 수치는 해당 근거부터 보완\\\hline
+사실 → 니즈 가설 & 확인한 변화와 가설의 전제 & 고객의 실제 문제·예산·도입 의사는 확인 질문으로 유지\\\hline
+니즈·제품 자료 → 적합성 & 고객 근거와 승인된 제품 기능·제약 & 제품 담당 답변을 기다리며 부적합·보류도 결과로 기록\\\hline
+검토 → 영업 조치 & 채택·보류 이유, 다음 질문·담당자 & 고객 답변·제품 변경이 오면 관련 주장만 재검토\\\hline
+\end{longtable}}
+\clearpage
+\section*{11 기업 분석 SOP 범위와 수집}
+\addcontentsline{toc}{section}{11 기업 분석 SOP 범위와 수집}
+단계 B01–B04  |  기업을 많이 설명하는 것보다 조사 목적에 필요한 질문을 먼저 정합니다.
+
+
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{B01 조사 목적과 사용처 정하기}
+\noindent\textbf{입력과 시작} 대상 회사와 조사 요청입니다.
+
+
+\noindent\textbf{수행과 판단} 방문 준비·계정 이해·사업 검토·제품 연결 중 목적을 정합니다. 독자, 작성 기준일, 대상 기간, 조사 범위와 필요한 결과를 적습니다.
+
+
+\noindent\textbf{산출물과 완료} 요청서에 목적·대상·기간·완료 조건이 있습니다.
+
+
+\noindent\textbf{예외와 재개} 회사명 한 줄만 있으면 식별과 목적부터 보완합니다.
+
+
+\noindent\textbf{책임과 수단} 영업 또는 현업 요청자가 범위를 결정하고 AI는 필요한 질문을 정리합니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{B02 분석할 법인과 관계 확인}
+\noindent\textbf{입력과 시작} 상호·사업자번호·공식 도메인·소재지 등 식별 정보입니다.
+
+
+\noindent\textbf{수행과 판단} 법인·그룹·브랜드·사업부를 구분하고 자료가 누구의 실적과 제품을 말하는지 확인합니다.
+
+
+\noindent\textbf{산출물과 완료} 대상 식별 기록과 다른 기업을 배제한 근거가 남습니다.
+
+
+\noindent\textbf{예외와 재개} 동일성 미확인 자료는 분석 근거로 확정하지 않습니다. 식별자 보완 후 관련 자료부터 재개합니다.
+
+
+\noindent\textbf{책임과 수단} 도구는 조회·대조, 조사 담당자는 중요한 모호성의 확인을 맡습니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{B03 조사 질문과 필요한 근거 정하기}
+\noindent\textbf{입력과 시작} 요청 목적과 기업 범위입니다.
+
+
+\noindent\textbf{수행과 판단} 무엇을 팔고 누구에게 어떻게 제공하는지, 최근 어떤 변화가 있으며 어떤 업무 과제를 확인할지 질문으로 나눕니다. 각 질문의 적절한 출처를 정합니다.
+
+
+\noindent\textbf{산출물과 완료} 우선순위가 있는 조사 질문과 근거 계획입니다.
+
+
+\noindent\textbf{예외와 재개} 자료가 없는 항목을 모두 채우도록 강제하지 않습니다. 범위·예산·기한이 충돌하면 요청자가 조정합니다.
+
+
+\noindent\textbf{책임과 수단} 조사 담당자가 계획하고 요청자가 우선순위를 확인합니다. LLM은 질문 분해를 보조합니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{B04 기존 자료 확인과 부족한 원문 수집}
+\noindent\textbf{입력과 시작} 회사 기본정보·기존 보고서·뉴스·공시·IR·제품 자료입니다.
+
+
+\noindent\textbf{수행과 판단} 기존 자료의 시점과 출처를 확인하고 부족한 질문에 필요한 원문만 수집합니다. 검색 발췌와 실제 본문을 구분합니다.
+
+
+\noindent\textbf{산출물과 완료} 수집 원장에 URL·발행일·수집일·기간·접근 결과를 기록합니다.
+
+
+\noindent\textbf{예외와 재개} 접근 실패·만료 캐시는 구분합니다. 같은 보도자료를 재전재한 기사들을 독립 근거로 세지 않습니다.
+
+
+\noindent\textbf{책임과 수단} API·검색·크롤러가 수집하고 조사 담당자가 자료 범위를 확인합니다.
+
+
+\endgroup
+\clearpage
+\section*{12 기업 분석 SOP 근거와 사실}
+\addcontentsline{toc}{section}{12 기업 분석 SOP 근거와 사실}
+단계 B05–B08  |  출처의 공신력은 주장을 뒷받침할 수 있는 범위와 함께 판단합니다.
+
+
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{B05 본문과 표의 판독 상태 확인}
+\noindent\textbf{입력과 시작} 수집 문서·PDF·이미지·표입니다.
+
+
+\noindent\textbf{수행과 판단} 원본을 보존하고 본문·물리 페이지·표 위치를 연결합니다. 추출된 범위와 읽지 못한 범위를 구분합니다.
+
+
+\noindent\textbf{산출물과 완료} 문서 버전, 판독 상태와 인용 가능한 위치입니다.
+
+
+\noindent\textbf{예외와 재개} 이미지 PDF의 부분 추출을 전문 판독으로 취급하지 않습니다. 필요한 페이지를 OCR 또는 사람이 확인한 뒤 재개합니다.
+
+
+\noindent\textbf{책임과 수단} 파서·OCR 모델이 추출하고 조사 담당자가 핵심 수치·단위·누락을 점검합니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{B06 출처와 주장 자격 결정}
+\noindent\textbf{입력과 시작} 원문, 발언 주체, 날짜와 기업 식별 정보입니다.
+
+
+\noindent\textbf{수행과 판단} 회사 자체 설명·공시·외부 평가·재전재를 구분합니다. 해당 자료가 제품 존재, 성능, 도입 실적 중 무엇을 지지하는지 판단합니다.
+
+
+\noindent\textbf{산출물과 완료} 채택 근거와 허용할 서술 범위, 상충 자료를 기록합니다.
+
+
+\noindent\textbf{예외와 재개} 마케팅 문구를 독립 검증 성과로 바꾸거나 날짜·기업을 혼합하면 반려합니다.
+
+
+\noindent\textbf{책임과 수단} 정형 검사는 ID·날짜·중복을, LLM은 모순 후보를, 조사 담당자는 근거 채택을 맡습니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{B07 기업과 주요 제품 설명}
+\noindent\textbf{입력과 시작} 채택된 회사·제품 근거입니다.
+
+
+\noindent\textbf{수행과 판단} 제품·서비스, 고객군, 제공 방식, 제조사와 판매·구축 주체를 나눕니다. 사업군별 기능을 설명하고 문장에 근거를 연결합니다.
+
+
+\noindent\textbf{산출물과 완료} 기업·제품 사실 목록과 근거가 연결된 B1 초안입니다.
+
+
+\noindent\textbf{예외와 재개} 고객 로고를 납품 계약으로 단정하거나 제조사 기능을 판매사의 자체 개발 실적으로 적으면 수정합니다.
+
+
+\noindent\textbf{책임과 수단} LLM이 구조화·서술하고 조사 담당자가 범위와 중요한 누락을 확인합니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{B08 숫자와 변화의 비교 조건 맞추기}
+\noindent\textbf{입력과 시작} 재무·실적·규모·최근 사건과 비교 대상 자료입니다.
+
+
+\noindent\textbf{수행과 판단} 기간·연결/별도·단위·누적/분기·사건일을 맞춥니다. 계산은 코드·시트로 수행하고 LLM은 계산 결과의 의미를 설명합니다.
+
+
+\noindent\textbf{산출물과 완료} 원자료·공식·분모·단위·기간과 결과가 추적됩니다.
+
+
+\noindent\textbf{예외와 재개} 기간이나 기준이 다른 수치는 별도 표시합니다. 비교 불가하면 이유를 남기고 해당 비교를 보류합니다.
+
+
+\noindent\textbf{책임과 수단} 정형 도구가 계산하고 조사 담당자가 비교의 타당성을 확인합니다.
+
+
+\endgroup
+\clearpage
+\section*{13 기업 분석 SOP 고객과 자사제품 연결}
+\addcontentsline{toc}{section}{13 기업 분석 SOP 고객과 자사제품 연결}
+단계 B09–B11  |  이 구간은 현재 구현을 단정하지 않은 현업 검증용 제안입니다.
+
+
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{B09 고객의 업무 문제 가설 만들기}
+\noindent\textbf{입력과 시작} 검증한 기업 변화, 기존 고객 접촉 기록과 공개된 계획입니다.
+
+
+\noindent\textbf{수행과 판단} 변화가 어떤 업무 부담으로 이어질 수 있는지 가설을 적고, 다른 설명과 반증 조건을 함께 적습니다. 고객에게 확인할 질문을 만듭니다.
+
+
+\noindent\textbf{산출물과 완료} 사실·니즈 가설·고객 확인 여부가 구분된 목록입니다.
+
+
+\noindent\textbf{예외와 재개} 증설·채용·매출 감소만으로 구매 의사·예산·시기를 확정하지 않습니다.
+
+
+\noindent\textbf{책임과 수단} LLM이 가설·질문을 제안하고 영업 담당자가 맥락과 검증 순서를 정합니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{B10 자사 판매제품의 실제 능력 준비}
+\noindent\textbf{입력과 시작} 승인된 제품 소개·기능 문서·제약·구축 조건·담당자입니다.
+
+
+\noindent\textbf{수행과 판단} 버전, 현재 기능과 로드맵, 표준 기능과 추가 개발, 필요 데이터·연동·환경을 구분합니다. 외부 제조사 제품이면 자사의 판매·구축·지원 범위를 적습니다.
+
+
+\noindent\textbf{산출물과 완료} 제품 기능 카드에 기능 근거·제약·검토자·확인일이 있습니다.
+
+
+\noindent\textbf{예외와 재개} 마케팅 요약만으로 기능을 확정하지 않습니다. 검토할 자료가 없으면 제품 담당자의 확인을 기다립니다.
+
+
+\noindent\textbf{책임과 수단} 제품 담당자가 내용에 책임지고 AI는 구조화, 도구는 버전과 갱신을 관리합니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{B11 니즈 가설과 기능의 적합성 검토}
+\noindent\textbf{입력과 시작} B09의 고객 가설과 B10의 제품 기능 카드입니다.
+
+
+\noindent\textbf{수행과 판단} 고객 근거 → 문제 가설 → 제품 기능 → 적용 조건 → 기대 변화 → 확인 질문을 연결합니다. 맞지 않는 이유와 대안도 기록합니다. 기대 변화는 검증할 가설이며, 정량 효과는 근거·계산식·적용 조건이 있을 때만 제시합니다.
+
+
+\noindent\textbf{산출물과 완료} 적합·조건부·부적합·미확인의 후보와 각 이유입니다.
+
+
+\noindent\textbf{예외와 재개} 업종이나 키워드가 같다는 이유만으로 추천하지 않습니다. 필수 기능·환경 조건이 맞지 않으면 보류·제외합니다.
+
+
+\noindent\textbf{책임과 수단} LLM은 연결 후보를 만들고 제품 담당자는 기술 조건, 영업 담당자는 고객 맥락을 검토합니다.
+
+
+\endgroup
+\subsection*{영업용 연결의 최소 단위}
+“이 회사에 우리 제품이 좋습니다”로 끝내지 않습니다. 확인한 고객 사실, 아직 확인하지 않은 문제, 제품이 실제로 해결하는 부분, 필요한 전제, 맞지 않는 조건, 다음 질문을 한 묶음으로 제시합니다. 고객 답변이 들어오면 이 연결의 어느 전제가 달라졌는지 갱신합니다.
+
+
+\clearpage
+\section*{14 기업 분석 SOP 검토와 영업 조치}
+\addcontentsline{toc}{section}{14 기업 분석 SOP 검토와 영업 조치}
+단계 B12–B14  |  발행 가능·현업 수용·고객 니즈 확인·영업기회 확정을 나눕니다.
+
+
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{B12 주장과 근거 및 연결 검토}
+\noindent\textbf{입력과 시작} 기업 사실·계산·니즈 가설·제품 연결 후보입니다.
+
+
+\noindent\textbf{수행과 판단} 원문이 주장을 실제로 지지하는지 확인합니다. 링크 존재·숫자 포함·문서 형식 통과만으로 의미가 옳다고 판단하지 않습니다.
+
+
+\noindent\textbf{산출물과 완료} 각 항목의 수용·수정·보류·제외와 이유입니다.
+
+
+\noindent\textbf{예외와 재개} 식별 오류는 B02, 판독 오류는 B05, 근거·계산 문제는 B06·08, 제품 문제는 B10·11로 돌려보냅니다.
+
+
+\noindent\textbf{책임과 수단} 정형 검사와 LLM 검토 보조를 사용하고 조사·제품·영업 담당자가 해당 영역을 판단합니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{B13 다음 영업 행동 결정}
+\noindent\textbf{입력과 시작} 검토된 사실과 적합성 후보, 고객 확인 질문입니다.
+
+
+\noindent\textbf{수행과 판단} 추가 질문·자료 요청·제품 소개 준비·보류·제외 중 다음 행동을 정합니다. 누가 언제 무엇을 확인할지와 외부에 약속할 범위를 정합니다.
+
+
+\noindent\textbf{산출물과 완료} 담당자·기한 또는 조건·질문·필요 자료가 있는 후속 행동입니다.
+
+
+\noindent\textbf{예외와 재개} 가설이 미확인인 경우 고객 확인을 다음 행동으로 둘 수 있습니다. 구매 의사와 확정 기회는 별도 근거가 있어야 합니다.
+
+
+\noindent\textbf{책임과 수단} 영업 담당자가 행동을 결정하고 제품 담당자는 기능·구축 약속을 검토합니다.
+
+
+\endgroup
+\begingroup\setlength{\parskip}{3pt}
+\subsection*{B14 결과 인계와 갱신}
+\noindent\textbf{입력과 시작} 검토본·근거·후속 행동과 선택한 저장·전달 대상입니다.
+
+
+\noindent\textbf{수행과 판단} 필요한 결과를 전달하고 후속 담당자가 판단 이유를 복원할 수 있게 합니다. 고객 답변·제품 버전·새 공시가 관련 주장을 바꾸면 해당 항목을 다시 검토합니다.
+
+
+\noindent\textbf{산출물과 완료} 인계 완료, 다음 담당자, 사용한 버전과 재검토 조건입니다.
+
+
+\noindent\textbf{예외와 재개} 등록 실패는 기존 실행을 확인해 재개합니다. 오래된 결과를 현재 결과처럼 덮어 쓰지 않습니다.
+
+
+\noindent\textbf{책임과 수단} 도구가 저장·연결·이력을 관리하고 업무 소유자가 인계와 후속 판단을 책임집니다.
+
+
+\endgroup
+\subsection*{유용한 결과와 정당한 보류}
+자료 부족으로 상세 분석을 못해도 확인한 기본정보와 필요한 질문을 정확히 전달할 수 있습니다. 이를 상세 보고서 성공과 같은 품질로 합산하지 않습니다. 정당한 보류는 별도로 집계해 근거 없는 발행을 늘리는 유인을 막습니다.
+
+
+\clearpage
+\section*{15 기업 분석 PRD 사실과 근거}
+\addcontentsline{toc}{section}{15 기업 분석 PRD 사실과 근거}
+{\fontsize{9.5}{14.06}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{18.94mm}|L{55.23mm}|L{83.63mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{ID} & \textbf{필요 동작} & \textbf{수용 조건과 검증 예}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{ID} & \textbf{필요 동작} & \textbf{수용 조건과 검증 예}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+B-01 & 분석 대상의 범위를 식별합니다. & 동명이업체와 그룹·자회사·브랜드 자료를 구분합니다. 식별 미확정 상태는 명시하고 다른 법인의 실적을 합치지 않습니다.\\\hline
+B-02 & 분석 시점과 자료의 기간을 보존합니다. & 작성 기준일, 자료 발행일·수집일·사건일·보고기간을 구분합니다. 과거 IR 수치를 현재 분기 수치로 표시하지 않습니다.\\\hline
+B-03 & 원문과 수집·판독 상태를 추적합니다. & 주요 주장에서 원문·물리 페이지·표로 돌아갈 수 있습니다. 부분 추출·접근 실패·검색 발췌를 완전한 근거와 구분합니다.\\\hline
+B-04 & 출처가 지지하는 범위대로 서술합니다. & 공식 홈페이지의 성능 주장은 회사의 주장으로 표시합니다. 독립 검증 조건이 없으면 검증된 보편 성능으로 바꾸지 않습니다.\\\hline
+B-05 & 제품과 제공 주체를 구분합니다. & 제품 기능·고객군·제공 방식·제조사·판매·구축 역할의 근거를 보존합니다. 로고만으로 계약을 확정하지 않습니다.\\\hline
+B-06 & 수치 계산의 입력과 공식을 남깁니다. & 단위·분모·기간·연결/별도 기준이 맞는 경우에만 계산합니다. 결과를 같은 입력으로 재현하고 비교 불가 상태를 표시할 수 있습니다.\\\hline
+\end{longtable}}
+\subsection*{자료의 수와 근거의 독립성}
+검색 결과의 수나 인용 URL 수를 품질의 대용 지표로 사용하지 않습니다. 같은 보도자료를 옮긴 세 기사에는 하나의 원 발표가 있을 수 있습니다. 주장에 직접 필요한 원문과 반대 근거를 확인했는지를 검토합니다. GomCrawl의 EvidenceRecord와 TieRPT의 문서·출처 기록을 출발점으로 사용합니다. [G6–G10]
+
+
+\clearpage
+\section*{16 기업 분석 PRD 제품 연결과 완료}
+\addcontentsline{toc}{section}{16 기업 분석 PRD 제품 연결과 완료}
+{\fontsize{9.5}{14.06}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{18.94mm}|L{55.23mm}|L{83.63mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{ID} & \textbf{필요 동작} & \textbf{수용 조건과 검증 예}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{ID} & \textbf{필요 동작} & \textbf{수용 조건과 검증 예}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+B-07 & 사실·자체 주장·해석·니즈 가설을 구분합니다. & 해당 법인이 증설 계획을 발표했다는 사실과 관리 업무 증가 가능성이라는 가설을 구분합니다. 실제 착공·완료 여부는 별도 확인하며 예산·구매 시기를 기사만으로 확정하지 않습니다.\\\hline
+B-08 & 자사제품 기능의 유효 범위를 관리합니다. & 현재 버전·기능·제약·필요 데이터·연동·표준/추가 개발·검토자를 기록합니다. 로드맵을 현재 제공 기능으로 표시하지 않습니다.\\\hline
+B-09 & 제품 연결의 논리를 추적합니다. & 모든 연결 후보에 고객 근거·가설·기능·성립 조건·확인 질문과 부적합·반대 근거의 점검 결과가 있습니다. 반대 근거 미발견 시 확인 범위를 적습니다. 고객·제품의 필수 근거가 비면 미확인입니다.\\\hline
+B-10 & 상충·부족한 자료를 처리합니다. & 서로 다른 주장은 근거와 기간을 함께 보존합니다. 동명이업체·부분 OCR·미지원 기능은 관련 단계로 되돌리고 필요한 보완을 명시합니다.\\\hline
+B-11 & 출력 유형과 검토 상태를 구분합니다. & 기본정보·상세 분석·제품 연결의 수용 기준을 나눕니다. 발행 가능, 현업 검토 완료, 고객 니즈 확인, 영업기회 확정은 별도 상태입니다.\\\hline
+B-12 & 인계와 갱신 및 자원 사용을 기록합니다. & 다음 담당자·질문·조건을 넘기고 관련 고객 답변·제품 변경 시 재검토 대상을 찾습니다. 검색·모델·재시도와 사람 검토 시간을 함께 집계합니다.\\\hline
+\end{longtable}}
+\subsection*{평가 사례 예시 B EV 001}
+\noindent\textbf{가상 입력} 고객사가 공장 증설 계획을 공개 발표했고, 자사제품 P는 승인된 기능 문서에서 설비 데이터 수집을 지원합니다. 고객의 실제 설비 데이터 방식과 예산은 미확인입니다.
+
+
+\noindent\textbf{기대 결과} 증설 계획의 발표는 확인 사실, 데이터 관리 부담은 가설, 제품 P는 조건부 연결 후보로 둡니다. 착공·완료 여부는 별도 확인합니다. 기존 수집 방식·해결할 문제·연동 가능성을 확인할 질문을 남깁니다. “구매 필요성이 높고 도입 예정”으로 확정하면 반려합니다.
+
+
+\noindent\textbf{연결} B09–B11 → PRD-B-07·08·09 → EV-B-001. 특정 고객이나 실제 제품의 성능을 주장하는 예시가 아닙니다.
+
+
+\clearpage
+\section*{17 출처와 제품 연결 기록 양식}
+\addcontentsline{toc}{section}{17 출처와 제품 연결 기록 양식}
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{29.98mm}|L{75.74mm}|L{52.07mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{기록} & \textbf{필수 항목} & \textbf{현업이 확인할 것}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{기록} & \textbf{필수 항목} & \textbf{현업이 확인할 것}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+기업 식별 & 법인명·식별자·공식 도메인·그룹/브랜드 관계·판정 근거 & 누구의 제품·실적·문제인지\\\hline
+출처 원장 & 출처 ID·URL·발행자·문서 종류·발행/수집/사건일·대상기간·원문 위치·판독 상태 & 어떤 주장까지 이 자료로 말할 수 있는지\\\hline
+주장 원장 & 주장 ID·서술·유형·근거 ID·원문 위치·기간·계산식·반대 근거·판정 & 원문이 해당 주장을 실제로 지지하는지\\\hline
+제품 기능 카드 & 제품/버전·현재 기능·제약·필요 데이터·연동·표준/추가 개발·근거·제품 담당자·확인일 & 지금 제공하고 책임질 수 있는 기능인지\\\hline
+연결 검토표 & 고객 사실 → 니즈 가설 → 기능 → 전제·부적합 이유 → 질문 → 영업 판단 & 고객과 제품 양쪽의 근거가 있고 다음 행동이 분명한지\\\hline
+\end{longtable}}
+\subsection*{주장에 맞는 출처 선택}
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{34.72mm}|L{66.28mm}|L{56.81mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{확인할 주장} & \textbf{우선 확인할 자료} & \textbf{주의할 해석}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{확인할 주장} & \textbf{우선 확인할 자료} & \textbf{주의할 해석}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+기업·법인 식별 & 공식 기업정보·식별자·공시·공식 도메인 & 회사명 유사성만으로 동일시하지 않음\\\hline
+제품 기능 & 해당 버전의 공식 제품·지원 문서와 제품 담당자 & 자체 소개와 독립 성능 검증 구분\\\hline
+매출·수익·규모 & 대상 법인의 공시·감사·정형 재무자료 & 기간·단위·연결/별도 기준 일치\\\hline
+고객 문제·도입 의사 & 고객 대화·요구사항·확인된 사업 계획 & 시장 뉴스와 실제 구매 니즈 구분\\\hline
+우리 제품 적합성 & 고객 근거와 승인된 제품 기능 및 도입 조건 & 키워드 매칭과 실제 적용 가능성 구분\\\hline
+\end{longtable}}
+이 기준은 v0.1 제안입니다. 현업이 사용하는 유료 DB·내부 정보·제품 자료가 추가되면 사용 범위와 갱신 책임을 정하고 원장에 연결합니다. 단순히 connector가 연결됐다는 사실은 자료가 충분하거나 정확하다는 증거가 아닙니다.
+
+
+\clearpage
+\section*{18 정형 자동화와 AI의 역할 배정}
+\addcontentsline{toc}{section}{18 정형 자동화와 AI의 역할 배정}
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{31.56mm}|L{66.28mm}|L{59.96mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{수행 수단} & \textbf{적합한 작업} & \textbf{사람과 연결할 조건}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{수행 수단} & \textbf{적합한 작업} & \textbf{사람과 연결할 조건}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+코드·API & ID·형식·필수값·정렬·중복·계산·캐시·문서 출력·확정된 상태 반영 & 규칙·입출력·오류 처리가 명확하고 실행 결과를 확인할 수 있을 때\\\hline
+RPA & API가 없고 화면에서만 할 수 있는 반복 조회·입력·내보내기 & 화면 변화·대상·결과를 확인하고 실패 시 사람이 이어받을 때\\\hline
+ASR·화자분리·OCR & 음성·이미지에서 텍스트·화자·레이아웃 추정 & 핵심 이름·수치·결정 구간의 불확실성을 표시하고 확인할 때\\\hline
+LLM & 비정형 문맥 해석·안건 묶기·결정 후보·요약·근거 비교·가설·문안 & 사용할 근거와 출력 조건이 분명하고 의미 오류를 검토할 수 있을 때\\\hline
+현업 담당자 & 목적·중요도·예외·수용 기준·고객 니즈·제품 약속·최종 행동 & 판단에 필요한 사실과 아직 모르는 것을 함께 받을 때\\\hline
+워크플로 관리 & 의존성·순서·대기·재시도·중단·이력·인계 상태 & AI 응답과 실제 업무 완료를 별도로 추적할 때\\\hline
+\end{longtable}}
+\subsection*{한 단계마다 확인할 배정 질문}
+\begin{itemize}
+\item 입력과 규칙을 명시하면 같은 결과를 재현할 수 있습니까? 가능하면 코드/API를 먼저 검토합니다.
+\item 비정형 의미 해석이 필요합니까? 필요하면 LLM의 출력과 검토할 근거를 정합니다.
+\item UI에서만 가능한 반복 작업입니까? 안정적인 API가 없을 때 RPA 후보로 둡니다.
+\item 결과를 기계적으로 검증할 수 있습니까? 불가능한 의미·가치 판단은 현업 확인 범위를 정합니다.
+\item 예외 빈도·오류 영향·재작업·비용을 고려해 자동화할 가치가 있습니까?
+\item 이미 합의된 낮은 영향의 동작에 불필요한 승인 대기를 추가하고 있지는 않습니까?
+\end{itemize}
+SOP의 12단계 또는 14단계를 같은 수의 모델 호출로 바꾸지 않습니다. 독립된 판단은 함께 처리할 수 있고, 선행 근거가 필요한 판단은 순서를 지킵니다. 단계 분리는 업무 논리이며 호출 수는 품질·지연·비용 실험으로 결정합니다. 정해진 흐름과 동적으로 선택하는 작업을 구분하는 접근은 에이전트 설계 자료에서도 설명됩니다. [E4]
+
+
+\clearpage
+\section*{19 현업과 개발 운영의 R\&R}
+\addcontentsline{toc}{section}{19 현업과 개발 운영의 R\&R}
+R은 수행 책임, A는 해당 결과의 최종 책임, C는 검토·협의, I는 결과 공유를 뜻합니다. 다음 표는 역할의 제안이며 사람이나 직급을 임의로 배정하지 않았습니다. 한 사람이 여러 역할을 맡을 수 있습니다. AI와 자동화 도구는 수행 수단으로 표시하고 최종 책임은 업무 소유자에게 둡니다.
+
+
+{\fontsize{8.7}{12.876}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{39.65mm}|L{22.66mm}|L{24.07mm}|L{18.41mm}|L{18.41mm}|L{18.41mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{활동} & \textbf{현업 작성·조사} & \textbf{업무·영업 책임} & \textbf{제품 전문} & \textbf{AX 담당} & \textbf{앱·IT}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{활동} & \textbf{현업 작성·조사} & \textbf{업무·영업 책임} & \textbf{제품 전문} & \textbf{AX 담당} & \textbf{앱·IT}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+목적·수용 기준 & R & A & C & C & I\\\hline
+원문·사실 확인 & R & A & C & C & I\\\hline
+회의 결정·담당자 확정 & R & A & 해당 시 C & C & I\\\hline
+제품 기능·제약 확정 & C & C & A/R & C & I\\\hline
+영업 가설·다음 행동 & R & A & C & C & I\\\hline
+SOP·PRD·평가 정리 & C & A & C & R & C\\\hline
+연동·저장·복구 & C & C & I & C & A/R\\\hline
+개선 채택·보류 & R & A & C & R & C\\\hline
+\end{longtable}}
+\subsection*{반려에는 다음 담당자와 재개 조건을 붙입니다}
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{50.50mm}|L{48.92mm}|L{58.39mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{상황} & \textbf{넘길 대상} & \textbf{재개에 필요한 것}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{상황} & \textbf{넘길 대상} & \textbf{재개에 필요한 것}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+회의 결정의 뜻이 모호함 & 회의 진행자 또는 해당 업무책임자 & 확정·잠정·미결의 확인과 근거\\\hline
+기업 동일성이 불명확함 & 조사 담당자 또는 요청자 & 사업자·법인 식별자 또는 공식 도메인\\\hline
+제품 기능이 미확인임 & 제품 담당자 & 버전·지원 조건·제약에 대한 승인 자료\\\hline
+후속 저장·등록이 실패함 & 앱·IT 담당자 & 실행 상태·대상 ID·중복 여부와 재개 판단\\\hline
+\end{longtable}}
+단계별 R·C는 책임 소재이며 매 단계 별도 승인을 뜻하지 않습니다. 연속된 의미 분석은 N09·B12 등 합의한 지점에서 통합 검토할 수 있습니다. 추가 확인은 불확실성·권한·중요 변경 등 정한 예외에 한정합니다. 누가 어떤 근거를 확인하고 무엇을 바꿀 수 있는지 함께 정합니다.
+
+
+\clearpage
+\section*{20 평가 사례와 정답을 만드는 방법}
+\addcontentsline{toc}{section}{20 평가 사례와 정답을 만드는 방법}
+\subsection*{첫 주의 표본 제안}
+업무군별 실제 사례 12건, 총 24건을 출발 규모로 제안합니다. 각 업무군에서 개발 사례 8건과 최종 검증용 보류 사례 4건을 절차 개선 전에 나눕니다. 보류 사례는 잠그고 개발 사례만 규칙 수정에 사용합니다. 장문 회의와 기업 자료를 검토하는 시간을 보고 1일차에 규모를 확정합니다. 이 규모는 절차를 점검하기 위한 소표본이며 통계적 성능 보장을 뜻하지 않습니다.
+
+
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{29.98mm}|L{67.85mm}|L{59.96mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{업무군} & \textbf{포함할 실제 사례} & \textbf{별도 경계 사례}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{업무군} & \textbf{포함할 실제 사례} & \textbf{별도 경계 사례}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+N 노트·회의록 & 짧은 연락 기록, 긴 회의, 결정 있음/없음, 수정 전후, 실제 반려 사례 & 동명이인·전사 오류·기한 미정·제안/합의 혼동·부분 실패\\\hline
+B 기업·영업 분석 & 자료 충분/희소, 제품 여러 개, 실제 영업 준비, 현재 보고서와 수정본 & 동명 법인·그룹/자회사·오래된 IR·부분 OCR·기능 불일치\\\hline
+\end{longtable}}
+\subsection*{정답 묶음의 구성}
+\begin{itemize}
+\item 현업이 반드시 포함해야 한다고 판단한 사실·결정·조건과 그 이유
+\item 각 항목의 원문 위치·URL·기간과 판단에 필요한 문맥
+\item 허용되는 표현 차이와 반드시 남겨야 하는 불확실성
+\item 원문에 없는 담당자·날짜·고객 니즈 등 금지할 확정
+\item 결과를 받는 사람이 해야 할 다음 행동과 완료 확인 근거
+\end{itemize}
+정답은 한 문장과의 일치가 아니라 사실과 수용 조건의 충족으로 정의합니다. 중요 사례에서 검토자 의견이 다르면 먼저 기준을 조정합니다. LLM 판정은 검토 보조로 사용하며 유일한 정답 작성자나 합격 판정자로 쓰지 않습니다.
+
+
+\subsection*{보류 사례를 사용하는 규칙}
+평가 담당은 보류 사례의 입력·기대 결과·기존 결과를 최종 검증까지 별도 관리하고, 절차 개선에 사용하지 않습니다. 같은 회의·고객·원문의 파생 자료를 개발과 보류 양쪽에 넣지 않습니다. 보류 사례의 결과를 보고 규칙을 수정하면 그 사례는 개발용으로 전환하고 새 보류 사례가 필요합니다. 원문 스냅샷, 수집 시점, 적용 규칙·모델·실행 버전을 기록합니다.
+
+
+\subsection*{코드를 바꾸기 전의 비교}
+현재 결과를 기준선으로 보존하고, 현업이 새 SOP에 따라 자료를 정리·판단·검토한 결과와 비교합니다. 동일 모델·동일 근거·동일 출력 조건에서 규칙 또는 판단 순서 1\textasciitilde{}2개만 바꿔 영향 원인을 확인합니다. 이 수동 검증으로 필요한 구현 변경을 선별합니다.
+
+
+\clearpage
+\section*{21 품질과 업무 완료의 측정}
+\addcontentsline{toc}{section}{21 품질과 업무 완료의 측정}
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{31.56mm}|L{66.28mm}|L{59.96mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{지표} & \textbf{계산 또는 기록 방식} & \textbf{해석 주의}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{지표} & \textbf{계산 또는 기록 방식} & \textbf{해석 주의}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+근거 충족률 & 근거가 의미까지 지지한 사실 주장 수 / 출력의 검증 대상 사실 주장 수 & 근거가 없는 주장을 분모에서 빼지 않습니다. 가설은 별도 평가합니다.\\\hline
+필수 항목 재현 & 올바르게 포함된 필수 사실·결정·조건 / 정답의 필수 항목 & 중요도와 누락 이유를 함께 기록합니다.\\\hline
+잘못된 확정 & 제안·미정·가설을 확정으로 바꾼 건수 & 분량·문장 유창성으로 상쇄하지 않습니다.\\\hline
+사람 검토 부담 & 초안 검토 시간, 실제 수정 시간, 수정 항목과 횟수 & 작업 시간과 대기 시간을 분리합니다.\\\hline
+업무 완료 & 합의한 완료 조건에 도달한 고유 사례 수 / 접수한 고유 업무 사례 수 & 재시도는 분모에 중복 산입하지 않습니다. 적절한 보류·실패·승인 대기는 별도로 집계합니다.\\\hline
+지연과 자원 & 전체 경과 시간, 단계별 대기, LLM·검색·도구 호출, 재시도 & 모델 응답속도만으로 업무 시간을 설명하지 않습니다.\\\hline
+완료당 변동비 & 동일 평가 묶음의 모든 시도 비용 합계 / 완료한 고유 업무 사례 수 & 실패·재실행을 포함합니다. 완료가 0이면 계산 불가입니다.\\\hline
+\end{longtable}}
+분모가 0이면 비율은 N/A와 이유를 표시합니다. N1·N2·B1·B2별 표본 수와 결과를 보고하고, 완료 기준이 다른 유형을 단일 통과율로 합치지 않습니다. 현행안과 제안안은 같은 평가 시점을 기준으로 각각 계산합니다.
+
+
+\subsection*{치명 오류 후보와 채택 판단}
+중요 결정·약속·수치·기한의 창작, 사람·기업의 오연결, 핵심 주장을 지지하지 않는 허위 근거, 확정 범위를 넘는 실행, 실패를 완료로 표시하는 오류는 사전에 치명 오류로 합의할 후보입니다. 검증 묶음에서 발견되면 해당 자동 처리 범위를 보류하고 원인을 확인합니다. 표본에서 0건이어도 전체 운영의 무오류를 뜻하지 않습니다.
+
+
+\noindent\textbf{채택 순서} 치명 오류 → 필수 완료 조건 → 근거와 내용 품질 → 사람의 수정 부담 → 시간·호출·비용을 함께 봅니다. 임계값은 기준선을 확인한 뒤 개선 결과를 보기 전에 합의합니다.
+
+
+\noindent\textbf{보고 방식} 총 n건 중 x건 수용, 개선·동일·악화 건수, 사례별 수정 시간 차이를 보고합니다. 소표본의 높은 통과율이나 극단 분위수를 서비스 전체의 보장 수치로 쓰지 않습니다.
+
+
+\clearpage
+\section*{22 일주일 실행 계획과 단계별 결과}
+\addcontentsline{toc}{section}{22 일주일 실행 계획과 단계별 결과}
+제안 일정  |  시작점 2026년 10월 30일  /  본 작업 11월 2일–6일 KST
+
+
+{\fontsize{9.3}{13.764000000000001}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{26.83mm}|L{61.54mm}|L{69.43mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{시점} & \textbf{수행할 일} & \textbf{남길 결과와 다음 단계 조건}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{시점} & \textbf{수행할 일} & \textbf{남길 결과와 다음 단계 조건}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+10/30 금
+시작 & 현재 문서·저장소 확인, 두 업무 범위와 v0.1 초안 작성 & SOP·PRD·지도·검증안, 미확인 항목과 자료 요청\\\hline
+11/2 월
+1일차 & 개발용 후보 사례의 실제 수행을 관찰하고 성공·실패 이유를 읽기 & 현재 업무 지도, 시작·종료·독자·책임자·표본 규모 합의\\\hline
+11/3 화
+2일차 & 보류 사례 선분리·잠금, 개발 사례만 현업이 수동 재현하고 수정 이유 설명 & 사례 원장과 분리 기록, 개발 사례의 기대 사실·근거, SOP v0.2\\\hline
+11/4 수
+3일차 & 수용 기준 조정, 동일 사례의 현재 결과와 비교 & PRD 수용 조건 고정, 기준선, 주요 실패 원인 1\textasciitilde{}2개 선정\\\hline
+11/5 목
+4일차 & 제안 절차를 수동 적용하고 변경 후보 비교 & 검토·수정 시간과 오류 차이, 역할·반려·재개 보완, v0.3\\\hline
+11/6 금
+5일차 & 2일차 잠근 보류 사례와 다른 담당자의 재수행으로 검토 & 합의 범위의 v1.0 후보, 남은 미확인과 구현 백로그\\\hline
+\end{longtable}}
+\subsection*{첫 주의 완료 기준}
+\begin{itemize}
+\item 두 업무의 목적·산출물·시작과 종료를 현업이 설명할 수 있습니다.
+\item 다른 담당자가 SOP를 따라 같은 핵심 사실과 판단 상태를 재현할 수 있습니다.
+\item 각 단계의 책임자와 사용 수단, 반려 대상과 재개 조건이 있습니다.
+\item 주요 요구사항은 실제 사례와 정상·예외 수용 조건에 연결됩니다.
+\item 현재 결과와 제안 절차의 차이가 사례·근거·수정 시간으로 남습니다.
+\end{itemize}
+실제 사례나 현업 검토가 확보되지 않으면 날짜가 되었다는 이유로 v1.0으로 올리지 않습니다. 미확인 상태의 v0.x를 유지하고 필요한 다음 작업을 정합니다. 주말 작업을 전제하지 않으며 일정은 자료와 담당자 가용성에 맞춰 조정합니다.
+
+
+\clearpage
+\section*{23 관찰과 요구사항을 기록하는 양식}
+\addcontentsline{toc}{section}{23 관찰과 요구사항을 기록하는 양식}
+\subsection*{현업 관찰 카드}
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{35.90mm}|L{127.30mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{항목} & \textbf{작성할 내용}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{항목} & \textbf{작성할 내용}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+사례와 목적 & 사례 ID, 실제/합성, 수행일, 요청자, 독자, 해야 하는 판단\\\hline
+입력 & 원문·녹음·자료 위치, 기준시각, 기존 결과와 최종 수정본\\\hline
+실제 수행 & 무엇을 어떤 순서로 읽고 검색하고 비교했는지, 사용한 시스템\\\hline
+판단 이유 & 채택·제외한 근거, 보류 이유, 확인한 사람과 질문\\\hline
+시간과 예외 & 능동 작업·대기·수정 시간, 반려·누락·오류와 재개 지점\\\hline
+완료 & 실제 사용한 결과, 완료를 확인한 사람·시점·근거\\\hline
+\end{longtable}}
+\subsection*{SOP 단계 카드}
+단계 ID / 목적 / 수행자와 결과 책임자 / 시작 조건 / 입력·출처 / 수행 순서 / 판단 규칙 / 산출물 / 완료 근거 / 예외·반려 대상 / 대기·재개 조건 / 관련 PRD·평가 사례 / 버전.
+
+
+\subsection*{PRD 요구사항 카드}
+요구 ID / 현업 문제 / 필요한 동작 / 적용·제외 범위 / 입력·출력 / 업무 규칙 / 필요한 데이터 / 검토·실행 주체 / 정상·경계·실패 동작 / 수용 조건 / 측정 방법 / 관련 SOP·평가 사례.
+
+
+\noindent\textbf{수용 조건 예} 주어진 원문에서 담당자가 정해지지 않았을 때, 후속 행동을 생성하면, 담당자를 미지정으로 유지하고 확인할 내용을 표시해야 합니다. 특정 API 필드 이름과 화면 구현은 이후 계약에서 결정합니다.
+
+
+\subsection*{첫 관찰에 사용할 질문}
+\begin{itemize}
+\item 최근 결과에서 제일 먼저 고친 부분과 그 이유는 무엇입니까?
+\item 결과가 충분하다고 판단한 순간은 언제이며 어떤 근거가 있었습니까?
+\item 주니어에게 이 일을 맡길 때 꼭 알려 주는 확인 순서는 무엇입니까?
+\item 잘못 처리하면 가장 문제가 되는 사실·판단·후속 행동은 무엇입니까?
+\end{itemize}
+\clearpage
+\section*{24 사례와 변경을 연결하는 양식}
+\addcontentsline{toc}{section}{24 사례와 변경을 연결하는 양식}
+\subsection*{평가 사례 카드}
+사례 ID / 개발·보류 구분 / 실제·합성 구분 / 원문 버전 / 기대 사실과 근거 / 필수 결과 / 허용 표현·불확실성 / 금지할 확정 / 치명 오류 / 검토자와 의견 조정 / 관련 SOP·PRD / 기준 고정일.
+
+
+\subsection*{실행과 검토 기록}
+실행 ID / 사례 ID / 현재·제안 절차 / 규칙·모델·계약 버전 / 초안 / 사실·근거 검토 / 수정본과 이유 / 작업·대기·수정 시간 / 완료·보류·실패 / 호출·검색·재시도·비용 / 원인 가설과 확인 상태.
+
+
+\subsection*{변경 결정 카드}
+결정 ID / 문제 / 비교한 대안 / 근거 사례와 실행 / 채택·보류·기각 / 판단 이유 / 바뀌는 SOP·PRD·지도 / 적용 범위와 담당자 / 남은 한계 / 재검토·되돌림 조건 / 결정일.
+
+
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{48.92mm}|L{45.76mm}|L{63.12mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{관찰 사례} & \textbf{연결할 단계·요구} & \textbf{변경과 재검증}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{관찰 사례} & \textbf{연결할 단계·요구} & \textbf{변경과 재검증}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+N에서 담당자를 임의 확정 & N06·07 / PRD-N-03·04·05 & 근거·수락·미지정 규칙 보완 → 다른 권유·미결 사례 확인\\\hline
+B에서 계열사 매출을 혼합 & B02·08 / PRD-B-01·02·06 & 기업 범위·수치 기준 보완 → 다른 그룹/브랜드 사례 확인\\\hline
+B에서 로드맵을 판매 기능으로 사용 & B10·11 / PRD-B-08·09 & 현재/예정 기능 구분 → 기능 불일치 사례 확인\\\hline
+\end{longtable}}
+위 행들은 기록 방법을 보여 주는 가상 예시입니다. 실제 발생·검증·개선 결과로 집계하지 않습니다.
+
+
+\subsection*{v0.1의 변경 이력}
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{26.83mm}|L{97.84mm}|L{33.14mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{버전} & \textbf{반영 내용} & \textbf{상태}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{버전} & \textbf{반영 내용} & \textbf{상태}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+0.1 10/30 & 두 업무군·출력 분기, 저장소 근거, 26개 SOP 단계, 24개 요구사항, 업무 지도, 역할·평가·일정·양식 & 현업 사례·인터뷰·실측 전\\\hline
+\end{longtable}}
+다음 회차에는 새 내용을 덧붙이기만 하지 않고 같은 단계 ID와 요구 ID를 수정합니다. 이전 버전, 수정 이유와 비교 사례를 남겨 무엇이 바뀌었는지 추적합니다.
+
+
+\clearpage
+\section*{25 다음 회차의 입력과 미확인 항목}
+\addcontentsline{toc}{section}{25 다음 회차의 입력과 미확인 항목}
+\subsection*{우선 받을 자료는 세 묶음입니다}
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{33.14mm}|L{74.17mm}|L{50.50mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{묶음} & \textbf{최소 자료} & \textbf{무엇을 확인하는지}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{묶음} & \textbf{최소 자료} & \textbf{무엇을 확인하는지}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+노트·회의록 사례 & 현재 결과가 아쉬웠던 실제 원문·AI 결과 1건과 현업이 좋다고 보는 결과 1건 & 필수 사실·순서·분량·판단 상태·수정 이유\\\hline
+기업·영업 분석 사례 & 대상 기업 1곳, 현재 리포트, 알고 싶은 질문, 현업의 조사 결과 또는 수정 의견 & 사실 조사에서 니즈·제품 연결로 넘어가는 판단\\\hline
+자사제품과 검토자 & 우선 분석할 제품 1개, 최신 기능·제약 자료, 확인 가능한 현업·제품 담당 역할 & 실제 제공 기능과 기대 행동, 절차의 최종 수용 기준\\\hline
+\end{longtable}}
+처음부터 24건을 모두 준비할 필요는 없습니다. 세 묶음으로 먼저 한 차례 수행을 복원한 뒤 표본을 늘립니다. 현재 제공 가능한 자료의 범위에서 시작하고, 누락된 자료는 미확인 상태로 남깁니다.
+
+
+\subsection*{초기 결정 목록}
+{\fontsize{9.2}{13.616}\selectfont
+\begin{longtable}{!{\vrule width 1.5pt}L{22.09mm}|L{97.84mm}|L{37.87mm}!{\vrule width 1.5pt}}
+\Hline\rowcolor{headgray} \textbf{우선순위} & \textbf{정할 내용} & \textbf{담당 역할}\\\hline\endfirsthead
+\Hline\rowcolor{headgray} \textbf{우선순위} & \textbf{정할 내용} & \textbf{담당 역할}\\\hline\endhead
+\hline\endfoot\Hline\endlastfoot
+P0 & 첫 주의 주력 결과물: 모바일 노트/정식 회의록, 사실 리포트/제품 연결 & 프로젝트 책임자과 결과를 사용할 현업\\\hline
+P0 & 좋은 결과·반려 결과와 필수 사실의 근거 & 현업 작성·조사·검토자\\\hline
+P0 & 자사제품의 최신 기능·제약과 고객에게 약속할 범위 & 제품 담당자\\\hline
+P1 & 현재 운영 브랜치·API 계약과 문서의 차이 & 앱·IT·AI 담당\\\hline
+P1 & 수정 시간·지연·비용의 기준 측정과 목표 & 현업과 AX 담당\\\hline
+P1 & 검토·확정·등록·공유의 실제 역할과 예외 & 각 업무 소유자\\\hline
+\end{longtable}}
+\subsection*{협업 방식}
+프로젝트 책임자과 현업은 실제 사례·수정 이유·판단 기준을 제공합니다. AI는 원문과 근거를 정리하고 누락 질문, 절차·요구사항 초안, 비교표와 변경 이력을 갱신합니다. 다음 담당자가 같은 입력으로 재수행한 결과를 기준으로 절차를 확정합니다. 데이터가 추가될 때마다 품질 가설과 자동화 범위를 다시 판단합니다.
+
+
+\clearpage
+\section*{26 근거 자료와 확인 범위}
+\addcontentsline{toc}{section}{26 근거 자료와 확인 범위}
+저장소 자료는 현재 기능과 계약을 이해하는 근거이며 현업의 실제 수행이나 운영 품질을 증명하지 않습니다. 아래 링크는 관련 문서·코드 확인의 출발점이며 일부는 접근 권한이 필요합니다. 웹 방법론은 관찰·SOP·요구사항·워크플로 설계의 일반 원칙에만 사용했습니다.
+
+
+\noindent\textbf{[D1] 사용자 첨부 AI RPA SOP MoW PRD.pdf} 원본 인쇄 4·5·9·11·22쪽의 업무 명세·역할 분담·현업 PRD. 첨부 파일의 물리 4·5·7·8·9쪽. \textit{[내부 참고 자료; 원문 미포함]}\par\vspace{5pt}
+\noindent\textbf{[G1] IScribe README} 음성 처리와 별도 회의록 생성, 기존 노트 수정 책임. \href{https://github.com/thuygom/IScribe/blob/master/README.md}{[원문]}\par\vspace{5pt}
+\noindent\textbf{[G2] IScribe audio\_analysis 계약} 완성 음성 분석의 입력·출력·상태. \href{https://github.com/thuygom/IScribe/blob/master/cowork/audio_analysis_latest.md}{[원문]}\par\vspace{5pt}
+\noindent\textbf{[G3] IScribe pre\_audio\_analysis 계약} 청크 처리·중간 전사·최종 의미 분석. \href{https://github.com/thuygom/IScribe/blob/master/cowork/pre_audio_analysis_latest.md}{[원문]}\par\vspace{5pt}
+\noindent\textbf{[G4] writingAgent analyze\_text 계약} 텍스트 분석·답장 분기·완료 후보·사용자 확인. \href{https://github.com/thuygom/writingAgent/blob/master/cowork/analyze_text_latest.md}{[원문]}\par\vspace{5pt}
+\noindent\textbf{[G5] 좋은 회의록 정성 지표 v0.3} 결론 우선·불참자 이해·책임·합의 상태·근거·검수. \href{https://github.com/thuygom/IScribe/blob/master/docs/meeting-intelligence/development/\%EC\%A2\%8B\%EC\%9D\%80\%20\%ED\%9A\%8C\%EC\%9D\%98\%EB\%A1\%9D\%20\%EC\%A0\%95\%EC\%84\%B1\%20\%EC\%A7\%80\%ED\%91\%9C\%20v0.3.md}{[원문]}\par\vspace{5pt}
+\noindent\textbf{[G6] GomCrawl README} webSearchAgent의 검색·connector·수집·EvidenceRecord. \href{https://github.com/thuygom/GomCrawl/blob/a519ea5935a8f66876105fcf272f4cfb91389905/README.md}{[원문]}\par\vspace{5pt}
+\noindent\textbf{[G7] GomCrawl 연동 계약} 회사·뉴스 조회와 상태·캐시·계정 범위. \href{https://github.com/thuygom/GomCrawl/blob/a519ea5935a8f66876105fcf272f4cfb91389905/cowork/README.md}{[원문]}\par\vspace{5pt}
+\noindent\textbf{[G8] GomCrawl news\_quality 코드} 기사 관계가치 분류의 LLM 경로와 실패 상태. \href{https://github.com/thuygom/GomCrawl/blob/a519ea5935a8f66876105fcf272f4cfb91389905/core/news_quality.py}{[원문]}\par\vspace{5pt}
+\noindent\textbf{[G9] TieRPT README} 기업 리포트 생성·캐시·발행·뉴스 연동 계약. \href{https://github.com/thuygom/TieRPT/blob/255fb5239baf421fdae49384fade44ae016a2faa/README.md}{[원문]}\par\vspace{5pt}
+\noindent\textbf{[G10] TieRPT 품질 개편 문서} 근거 수집·기업 동일성·분야별 분석·발행 기준. \href{https://github.com/thuygom/TieRPT/blob/255fb5239baf421fdae49384fade44ae016a2faa/docs/quality-v2.md}{[원문]}\par\vspace{5pt}
+\noindent\textbf{[G11] TieRPT report-v3 문서} 유형별 분석·수치와 배포 상태에 대한 문서 기록. \href{https://github.com/thuygom/TieRPT/blob/255fb5239baf421fdae49384fade44ae016a2faa/docs/report-v3.md}{[원문]}\par\vspace{5pt}
+\noindent\textbf{[G12] TieRPT quality 코드} adaptive-v3 경로와 품질 기준의 정적 구현. \href{https://github.com/thuygom/TieRPT/blob/255fb5239baf421fdae49384fade44ae016a2faa/tierpt/quality.py}{[원문]}\par\vspace{5pt}
+\noindent\textbf{[G13] writingAgent text\_refine 계약} 수정 범위·확정 객체 보호와 백엔드 버전 관리의 책임. \href{https://github.com/thuygom/writingAgent/blob/master/cowork/text_refine_latest.md}{[원문]}\par\vspace{5pt}
+\noindent\textbf{[G14] writingAgent 업무 추출 프롬프트} 요청자·수행자·기한과 원문 근거 처리. \href{https://github.com/thuygom/writingAgent/blob/master/backend/prompts.py}{[원문]}\par\vspace{5pt}
+\subsection*{방법론 참고}
+\noindent\textbf{[E1] US EPA SOP Guidance} 반복 업무의 절차, 숙련자의 작성·검토, 타인의 재현과 개정 관리. 환경 분야의 지침을 일반 작성 원칙으로 참조했습니다. \href{https://www.epa.gov/sites/default/files/2015-06/documents/g6-final.pdf}{[원문]}\par\vspace{5pt}
+\noindent\textbf{[E2] GOV.UK Contextual research} 실제 환경의 업무·자료·도구를 관찰하고 판단 이유를 확인하는 방법. \href{https://www.gov.uk/service-manual/user-research/contextual-research-and-observation}{[원문]}\par\vspace{5pt}
+\noindent\textbf{[E3] NASA Good Requirement} 명확하고 단일하며 추적·검증 가능한 요구사항 작성 원칙. \href{https://www.nasa.gov/reference/appendix-c-how-to-write-a-good-requirement/}{[원문]}\par\vspace{5pt}
+\noindent\textbf{[E4] Anthropic Building effective agents} 정해진 워크플로와 동적 에이전트 구분, 복잡도와 품질·지연·비용의 관계. 2024년 방법론의 개념 부분을 참조했습니다. \href{https://www.anthropic.com/research/building-effective-agents}{[원문]}\par\vspace{5pt}
+\end{document}

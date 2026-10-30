@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.env
+.env.*
+data/private/
+local/
+reports/tex/*.aux
+reports/tex/*.log
+reports/tex/*.out
+reports/tex/*.toc
+reports/tex/main.pdf
+reports/tex/build-console.txt
