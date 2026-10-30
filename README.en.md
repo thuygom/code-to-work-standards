@@ -42,6 +42,8 @@ Python 3.10+ is required for the standard-library-only tools. No LLM or external
 
 ## Open contribution
 
+[Visit the contribution website](https://standard.jhkim3ispark.work/) (Korean): explore domains, compose a case or import a UTF-8 `.md`/`.txt` file, review it, then submit it as a GitHub issue. Files are read locally in your browser; GitHub handles final submission and attachments. New domains can be proposed through the [dedicated issue template](https://github.com/thuygom/code-to-work-standards/issues/new?template=new-domain.md). Registered workflow IDs and output types live in [the workflow registry](workflows/registry.json).
+
 We welcome practitioners, domain experts, developers, researchers, and documentation contributors. Useful contributions include anonymized cases you may publish, synthetic counterexamples, decision rules, work maps, evaluation methods, and translation. The smallest contribution is **one case + one rule + one way to check it**.
 
 Keep customer data, credentials, original meeting recordings, and independent holdout cases outside the public repository. Code references may point to access-controlled repositories; contributions do not require access to those original applications.

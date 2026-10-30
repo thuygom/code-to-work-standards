@@ -8,6 +8,8 @@
 
 [PDF 27쪽 읽기](reports/workflow-standards-v0.1.pdf) · [PDF 해설](docs/pdf-reading-guide.md) · [English](README.en.md) · [기여 시작하기](CONTRIBUTING.md) · [이슈 제안](https://github.com/thuygom/code-to-work-standards/issues/new/choose)
 
+**[기여 웹사이트 열기 ↗](https://standard.jhkim3ispark.work/)** — 분야를 둘러보고, 사례를 작성하거나 텍스트 파일을 불러와 GitHub 이슈로 제안할 수 있습니다. [웹사이트 개발·운영 안내](website/README.md)
+
 ## 에이전트는 일을 끝냈는데, 우리의 일은 왜 남아 있을까요?
 
 회의록은 매끄럽지만 제안을 확정된 결정으로 바꿉니다. 기업 분석에는 링크가 많지만 고객의 문제와 우리 제품이 왜 연결되는지 설명하지 못합니다. API는 성공했지만 검토·저장·인계는 남아 있습니다.

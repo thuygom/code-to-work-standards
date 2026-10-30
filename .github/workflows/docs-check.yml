@@ -13,3 +13,9 @@ jobs:
         run: python3 scripts/check_repository.py
       - name: Validate evaluation records
         run: python3 scripts/summarize_evaluation.py
+      - name: Check workflow registration
+        run: PYTHONPATH=scripts python3 -m unittest discover -s tests -v
+      - name: Build public website assets
+        run: python3 scripts/build_website.py
+      - name: Check contribution website and server
+        run: node --test tests/*.test.mjs
