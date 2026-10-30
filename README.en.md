@@ -10,7 +10,7 @@ Turn the reasons people correct AI output into explicit work standards, acceptan
 
 ## What this project does
 
-We connect **code evidence → proposed SOPs and maps of work → practitioner observation → evaluation → change decisions**. Existing code tells us what a system appears to do. Practitioners and real cases tell us whether that behavior supports the job, where it fails, and what completion means.
+This is an independent, cross-domain contribution project. We connect **code evidence → proposed SOPs and maps of work → practitioner observation → evaluation → change decisions**. Contributors may bring cases from their own work and projects. Project names, source links, and implementation findings belong to individual contributions with an explicit publication scope; they are not a built-in product lineup or an integration requirement.
 
 The current release is **v0.1: proposed standards, not practitioner-validated procedures**. Examples are synthetic and unexecuted. No quality or productivity gains have been measured yet.
 
@@ -42,7 +42,7 @@ Python 3.10+ is required for the standard-library-only tools. No LLM or external
 
 ## Open contribution
 
-[Visit the contribution website](https://standard.linh.day/) (Korean): explore domains, compose a case or import a UTF-8 `.md`/`.txt` file, review it, then submit it as a GitHub issue. Files are read locally in your browser; GitHub handles final submission and attachments. New domains can be proposed through the [dedicated issue template](https://github.com/thuygom/code-to-work-standards/issues/new?template=new-domain.md). Registered workflow IDs and output types live in [the workflow registry](workflows/registry.json).
+[Visit the contribution website](https://standard.linh.day/) (Korean) to browse and download MoW, PRD, SOP, experiences and insights. Submit text and up to three attachments (2 MiB each) directly for review, or use GitHub issues. Web submissions are stored privately until an operator reviews and explicitly publishes selected content. Keep the receipt file to check an anonymous submission. The [18 curated starting resources](library/README.md) are drafts and references, not evidence of practitioner validation. See [storage and operations](docs/contribution-storage.md) for idempotency, review, publication and recovery.
 
 We welcome practitioners, domain experts, developers, researchers, and documentation contributors. Useful contributions include anonymized cases you may publish, synthetic counterexamples, decision rules, work maps, evaluation methods, and translation. The smallest contribution is **one case + one rule + one way to check it**.
 

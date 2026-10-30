@@ -28,7 +28,7 @@ def main():
         if not (ROOT / name).is_file():
             errors.append(f"Missing: {name}")
     for path in ROOT.rglob("*.md"):
-        if ".git" in path.parts:
+        if any(part in {".git", "node_modules", "dist", "local-deploy"} for part in path.relative_to(ROOT).parts):
             continue
         text = re.sub(r"```.*?```", "", path.read_text(encoding="utf-8"), flags=re.S)
         for target in re.findall(r"!?\[[^\]]*\]\(([^)]+)\)", text):

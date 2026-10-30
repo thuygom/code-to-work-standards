@@ -1,4 +1,6 @@
-import { REPO, DOMAINS, matchingDomains, buildContribution, decodeFile, LIMITS } from './contribution.mjs';
+import { REPO, DOMAINS, FORMATS, matchingDomains, buildContribution, decodeFile, LIMITS } from './contribution.mjs';
+
+import './library.mjs';
 
 const $ = selector => document.querySelector(selector);
 const dialog = $('#contribution-dialog');
@@ -17,6 +19,7 @@ let draft;
 let copied = false;
 let opener;
 
+for (const [id, name] of Object.entries(FORMATS)) fields.format.add(new Option(name, id));
 for (const domain of DOMAINS) fields.domain.add(new Option(domain.name, domain.id));
 
 function renderCards() {
@@ -61,6 +64,7 @@ document.addEventListener('click', event => {
     fields.domain.value = domain.id;
     fields.kind.value = domain.status === 'proposal' ? 'new-domain' : 'observation';
   }
+  form.hidden = false; $('#receipt-panel').hidden = true;
   dialog.showModal();
   showStep(false);
 });
@@ -93,15 +97,22 @@ drop.addEventListener('drop', event => {
   importFile(event.dataTransfer.files[0]);
 });
 
-form.addEventListener('submit', event => {
+let submissionInput;
+let busy = false;
+let savedReceipt;
+try { savedReceipt = JSON.parse(sessionStorage.getItem('standard-receipt') || 'null'); } catch {}
+form.addEventListener('submit', async event => {
   event.preventDefault();
   try {
-    draft = buildContribution(Object.fromEntries(new FormData(form)));
+    submissionInput = Object.fromEntries(new FormData(form));
+    submissionInput.attachments = await collectAttachments();
+    submissionInput.consent = '2026-10-30';
+    draft = buildContribution(submissionInput);
     copied = false;
     $('#privacy-check').checked = false;
     $('#license-check').checked = false;
-    $('#contribution-preview').textContent = `${draft.title}\n\n${draft.body}`;
-    $('#submit-status').textContent = draft.needsCopy ? '긴 글입니다. 먼저 본문을 복사한 뒤, GitHub 이슈 본문에 붙여 넣어 주세요.' : 'GitHub 작성 화면에 제목과 본문이 자동으로 채워집니다.';
+    $('#contribution-preview').textContent = `${draft.title}\n\n${draft.body}\n첨부: ${submissionInput.attachments.map(f => f.name).join(', ') || '없음'}`;
+    $('#submit-status').textContent = '웹에서 접수하면 확인 번호가 발급됩니다. 공개 검토 후 다른 사람이 자료를 가져갈 수 있습니다.';
     showStep(true);
   } catch (error) { $('#file-status').textContent = error.message; $('#file-status').scrollIntoView({ block: 'center' }); }
 });
@@ -137,4 +148,90 @@ $('#open-github').addEventListener('click', () => {
   }
   window.open(draft.url, '_blank', 'noopener,noreferrer');
   $('#submit-status').textContent = draft.needsCopy ? 'GitHub 작성 화면에서 복사한 본문을 붙여 넣고 제출해 주세요. 팝업이 막혔다면 브라우저에서 허용해 주세요.' : 'GitHub에서 최종 제출해 주세요. 팝업이 막혔다면 브라우저에서 허용해 주세요. 이 창의 초안은 유지됩니다.';
+});
+
+async function collectAttachments() {
+  const files = [...$('#attachments').files];
+  if (files.length > 3) throw new Error('첨부파일은 최대 3개입니다.');
+  return Promise.all(files.map(file => {
+    if (!file.size || file.size > 2 * 1024 * 1024) throw new Error('첨부파일은 각각 2 MiB 이하이며 비어 있지 않아야 합니다.');
+    return new Promise((resolve,reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve({ name:file.name, data:String(reader.result).split(',')[1] });
+      reader.onerror = () => reject(new Error('첨부파일을 읽을 수 없습니다.'));
+      reader.readAsDataURL(file);
+    });
+  }));
+}
+function download(name,content,type) {
+  const url = URL.createObjectURL(new Blob([content],{ type }));
+  const link = document.createElement('a'); link.href = url; link.download = name; link.click();
+  setTimeout(() => URL.revokeObjectURL(url),1000);
+}
+function keepReceipt() {
+  try { sessionStorage.setItem('standard-receipt',JSON.stringify(savedReceipt)); } catch {}
+}
+function showReceipt() {
+  form.hidden = true; $('#receipt-panel').hidden = false;
+  if (!dialog.open) dialog.showModal();
+  $('#receipt-status').textContent = savedReceipt ? '접수 상태를 확인하는 중입니다…' : '이 탭에 저장된 접수가 없습니다. 보관한 접수 확인 파일을 페이지 아래에서 불러와 주세요.';
+  $('#save-receipt').disabled = !savedReceipt;
+  $('#refresh-receipt').disabled = !savedReceipt;
+  if (savedReceipt) void refreshReceipt();
+}
+async function refreshReceipt() {
+  try {
+    const key = savedReceipt.id || `by-key/${savedReceipt.key}`;
+    const response = await fetch(`/api/contributions/${key}`,{ headers:{ Authorization:`Bearer ${savedReceipt.token}` } });
+    const result = await response.json();
+    if (!response.ok) throw new Error(response.status === 404 ? '아직 접수가 확인되지 않았습니다. 원래 내용으로 다시 제출해 주세요.' : result.error);
+    savedReceipt.id = result.id; keepReceipt();
+    const names = { received:'접수 완료 · 검토 대기', reviewing:'검토 중', accepted:'검토 수용 · 공개 여부는 별도 결정', declined:'보류·반려' };
+    $('#receipt-status').textContent = `${names[result.status]}\n접수 번호: ${result.id}\n접수 시각: ${new Date(result.receivedAt).toLocaleString('ko-KR')}\n첨부: ${result.attachments.map(f => f.name).join(', ') || '없음'}${result.reviewNote ? `\n검토 의견: ${result.reviewNote}` : ''}`;
+  } catch (error) { $('#receipt-status').textContent = error.message || '조회에 실패했습니다. 다시 시도해 주세요.'; }
+}
+$('#submit-web').addEventListener('click',async () => {
+  if (busy) return;
+  if (!$('#privacy-check').checked || !$('#license-check').checked) {
+    $('#submit-status').textContent = '공개 자료와 라이선스 조건을 모두 확인해 주세요.';
+    (!$('#privacy-check').checked ? $('#privacy-check') : $('#license-check')).focus(); return;
+  }
+  busy = true;
+  for (const el of dialog.querySelectorAll('button')) el.disabled = true;
+  $('#submit-status').textContent = '기여와 첨부파일을 접수하고 있습니다…';
+  try {
+    const payload = JSON.stringify(submissionInput);
+    const digest = [...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(payload)))].map(b => b.toString(16).padStart(2,'0')).join('');
+    if (!savedReceipt || savedReceipt.digest !== digest) {
+      savedReceipt = { version:1, token:[...crypto.getRandomValues(new Uint8Array(32))].map(b => b.toString(16).padStart(2,'0')).join(''), key:crypto.randomUUID(), digest };
+      keepReceipt();
+    }
+    const response = await fetch('/api/contributions',{ method:'POST',headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${savedReceipt.token}`, 'Idempotency-Key':savedReceipt.key },body:payload,signal:AbortSignal.timeout(30000) });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error);
+    savedReceipt.id = result.id; keepReceipt(); showReceipt();
+  } catch (error) {
+    $('#submit-status').textContent = `${error.name === 'TimeoutError' || error instanceof TypeError ? '접수 응답을 확인하지 못했습니다.' : error.message} 같은 내용으로 다시 누르면 중복 저장 없이 확인합니다. 이 탭에서 원고를 유지하거나 .md로 저장해 주세요.`;
+  } finally {
+    busy = false;
+    for (const el of dialog.querySelectorAll('button')) el.disabled = false;
+  }
+});
+dialog.addEventListener('cancel',event => { if (busy) event.preventDefault(); });
+$('#my-receipt').addEventListener('click',showReceipt);
+$('#refresh-receipt').addEventListener('click',refreshReceipt);
+$('#save-receipt').addEventListener('click',() => {
+  if (savedReceipt) download(`standard-receipt-${savedReceipt.id || savedReceipt.key}.json`,JSON.stringify(savedReceipt,null,2),'application/json');
+});
+$('#new-contribution').addEventListener('click',() => { form.hidden = false; $('#receipt-panel').hidden = true; form.reset(); showStep(false); });
+$('#load-receipt').addEventListener('change',async event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  try {
+    if (file.size > 4096) throw new Error('올바른 접수 확인 파일을 선택해 주세요.');
+    const value = JSON.parse(await file.text());
+    if (value.version !== 1 || !/^[a-f0-9]{64}$/.test(value.token) || !/^[a-f0-9-]{36}$/.test(value.key) || (value.id && !/^[a-f0-9-]{36}$/.test(value.id))) throw new Error('올바른 접수 확인 파일을 선택해 주세요.');
+    savedReceipt = { version:1,token:value.token,key:value.key,id:value.id,digest:value.digest }; keepReceipt(); showReceipt();
+  } catch (error) { $('#library-status').textContent = error.message; $('#library-status').scrollIntoView({block:'center'}); }
+  finally { event.target.value = ''; }
 });

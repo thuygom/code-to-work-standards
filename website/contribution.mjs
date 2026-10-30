@@ -9,7 +9,8 @@ export const DOMAINS = [
   { id: 'other', name: '다른 분야 / 새 업무', status: 'proposal', keywords: '기타 법무 회계 금융 재무 건설 공공' },
 ];
 export const KINDS = { observation: '현업 사례·수정 이유', improvement: '판단 규칙·반례', 'new-domain': '새 업무군 제안', documentation: '문서·번역 개선' };
-export const LIMITS = { title: 100, role: 80, context: 12000, rule: 3000, check: 3000, references: 500 };
+export const FORMATS = { experience: '현업 경험', insight: '인사이트', mow: 'MoW · 업무 지도', prd: 'PRD · 요구사항', sop: 'SOP · 업무 절차', bundle: '자료 묶음' };
+export const LIMITS = { title: 100, role: 80, author: 80, context: 12000, rule: 3000, check: 3000, references: 500 };
 
 export function matchingDomains(filter, query) {
   const term = query.trim().toLocaleLowerCase();
@@ -18,15 +19,16 @@ export function matchingDomains(filter, query) {
 
 export function buildContribution(input) {
   const domain = DOMAINS.find(d => d.id === input.domain);
-  if (!domain || !Object.hasOwn(KINDS, input.kind) || !['real', 'synthetic'].includes(input.source)) throw new Error('분야, 기여 유형과 사례 구분을 확인해 주세요.');
+  if (!domain || !Object.hasOwn(KINDS, input.kind) || !['real', 'synthetic', 'reference'].includes(input.source)) throw new Error('분야, 기여 유형과 사례 구분을 확인해 주세요.');
   const values = {};
   for (const [key, limit] of Object.entries(LIMITS)) {
     values[key] = String(input[key] ?? '').trim();
     if (values[key].length > limit) throw new Error(`${key}: 최대 ${limit}자까지 입력할 수 있습니다.`);
-    if (key !== 'references' && !values[key]) throw new Error('필수 항목에 공백이 아닌 내용을 입력해 주세요.');
+    if (!['references','author'].includes(key) && !values[key]) throw new Error('필수 항목에 공백이 아닌 내용을 입력해 주세요.');
   }
+  if (!Object.hasOwn(FORMATS, input.format || 'experience')) throw new Error('자료 종류를 확인해 주세요.');
   const title = `[${KINDS[input.kind]}] ${values.title.replace(/[\r\n]/g, ' ')}`;
-  const body = `## 업무와 기여 유형\n\n- 분야: ${domain.name}\n- 역할 / 제안 분야: ${values.role}\n- 유형: ${KINDS[input.kind]}\n- 사례: ${input.source === 'synthetic' ? 'synthetic · 합성 사례 · 미실행' : 'real · 실제 사례의 공개 가능한 가공본'}\n- 상태: 제안 · 채택 및 비교 평가 전\n\n## 상황과 수정한 부분\n\n${values.context}\n\n## 바뀌어야 할 규칙과 이유\n\n${values.rule}\n\n## 확인 방법과 아직 모르는 점\n\n${values.check}\n\n## 관련 문서·단계 ID\n\n${values.references || '미지정 · 검토 시 연결 필요'}\n\n## 공개 및 기여 조건\n\n- 공개할 권한이 있는 자료이며 민감 정보와 평가 전 보류 사례를 포함하지 않았습니다.\n- 새로 작성한 기여는 MIT License로 제공하며 외부 출처의 권리를 유지합니다.\n- 현업 채택, 평가 결과, 구현·배포는 별도 확인이 필요합니다.\n`;
+  const body = `## 업무와 기여 유형\n\n- 분야: ${domain.name}\n- 자료 종류: ${FORMATS[input.format || 'experience']}\n- 기여자: ${values.author || '익명 기여자'}\n- 역할 / 제안 분야: ${values.role}\n- 유형: ${KINDS[input.kind]}\n- 사례: ${input.source === 'synthetic' ? 'synthetic · 합성 사례 · 미실행' : input.source === 'reference' ? 'reference · 문서·코드 기반 정리 · 현업 검증 전' : 'real · 실제 사례의 공개 가능한 가공본'}\n- 상태: 제안 · 채택 및 비교 평가 전\n\n## 상황과 수정한 부분\n\n${values.context}\n\n## 바뀌어야 할 규칙과 이유\n\n${values.rule}\n\n## 확인 방법과 아직 모르는 점\n\n${values.check}\n\n## 관련 문서·단계 ID\n\n${values.references || '미지정 · 검토 시 연결 필요'}\n\n## 공개 및 기여 조건\n\n- 공개할 권한이 있는 자료이며 민감 정보와 평가 전 보류 사례를 포함하지 않았습니다.\n- 새로 작성한 기여는 MIT License로 제공하며 외부 출처의 권리를 유지합니다.\n- 현업 채택, 평가 결과, 구현·배포는 별도 확인이 필요합니다.\n`;
   const url = new URL(`${REPO}/issues/new`);
   url.searchParams.set('title', title);
   url.searchParams.set('body', body);

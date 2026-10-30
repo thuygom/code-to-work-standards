@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Package only public website assets; no dependencies or network requests."""
+"""Package public assets and the locally installed Markdown renderer; no network requests."""
 from pathlib import Path
 import shutil
 
@@ -8,8 +8,12 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     target = ROOT / 'dist'
     target.mkdir(exist_ok=True)
-    for name in ('index.html', 'style.css', 'app.mjs', 'contribution.mjs', 'favicon.svg'):
+    for name in ('index.html', 'style.css', 'app.mjs', 'library.mjs', 'render-markdown.mjs', 'contribution.mjs', 'favicon.svg'):
         shutil.copy2(ROOT / 'website' / name, target / name)
+    vendor = target / 'vendor'
+    vendor.mkdir(exist_ok=True)
+    shutil.copy2(ROOT / 'node_modules/markdown-it/dist/browser/markdown-it.esm.min.mjs', vendor / 'markdown-it.mjs')
+    shutil.copy2(ROOT / 'node_modules/markdown-it/LICENSE', vendor / 'markdown-it-LICENSE.txt')
     assets = target / 'assets'
     assets.mkdir(exist_ok=True)
     shutil.copy2(ROOT / 'assets/hero.png', assets / 'hero.png')

@@ -1,30 +1,28 @@
-# 코드에서 확인한 출발점
+# 기여별 코드 근거 기록
 
-확인 기준일은 2026-10-30 KST입니다. 정적 문서·코드 열람이며 운영 호출과 현업 품질 검증은 수행하지 않았습니다. 원본 저장소는 접근 권한이 필요할 수 있습니다. 이 공개 프로젝트는 원본 애플리케이션 소스를 재배포하지 않습니다.
+Code to Work Standards는 독립적인 공개 기여 프로젝트입니다. 공통 문서는 특정 프로젝트의 구현·운영 상태를 전제로 삼지 않습니다. 노트·회의록과 기업·영업 분석은 작성 방식을 보여 주는 업무 초안이며, 특정 제품의 공식 사양이 아닙니다.
 
-| 대상 | 확인 범위 | SOP에 연결할 질문 |
-|---|---|---|
-| IScribe | 완성 음성·청크 음성, 전사·화자, 노트와 별도 회의록 생성 | 중간 전사·최종 분석·현업 수용은 각각 언제인가? |
-| writingAgent | 분석·답장 모드, 인물·요약·업무·일정, 수정 범위와 완료 후보 | 요청·합의·완료, 대상·기한·버전 보호를 어떻게 판정하는가? |
-| GomCrawl / webSearchAgent | 검색·connector·수집과 공통 EvidenceRecord | 검색 발췌와 실제 근거, 자료의 독립성·최신성을 어떻게 확인하는가? |
-| TieRPT | 기업 자료 수집·분석·작성·검증 | 인용 존재와 의미적 지지, 사실 리포트와 제품 연결을 어떻게 구분하는가? |
+## 자신의 프로젝트에서 기여할 때
 
-## 근거 링크
+[코드 근거 카드](../templates/code-evidence.md)에 해당 기여의 범위를 기록합니다. 코드 공개는 필수가 아닙니다. 공개할 권한이 없는 저장소 이름·URL·내부 경로·원문은 넣지 않고, 판단 가능한 가공 설명과 한계를 남깁니다.
 
-- IScribe: [README](https://github.com/thuygom/IScribe/blob/master/README.md), [audio_analysis](https://github.com/thuygom/IScribe/blob/master/cowork/audio_analysis_latest.md), [pre_audio_analysis](https://github.com/thuygom/IScribe/blob/master/cowork/pre_audio_analysis_latest.md)
-- writingAgent: [analyze_text](https://github.com/thuygom/writingAgent/blob/master/cowork/analyze_text_latest.md), [text_refine](https://github.com/thuygom/writingAgent/blob/master/cowork/text_refine_latest.md)
-- GomCrawl: [README](https://github.com/thuygom/GomCrawl/blob/a519ea5935a8f66876105fcf272f4cfb91389905/README.md), [news_quality](https://github.com/thuygom/GomCrawl/blob/a519ea5935a8f66876105fcf272f4cfb91389905/core/news_quality.py)
-- TieRPT: [품질 설계](https://github.com/thuygom/TieRPT/blob/255fb5239baf421fdae49384fade44ae016a2faa/docs/quality-v2.md), [검증 코드](https://github.com/thuygom/TieRPT/blob/255fb5239baf421fdae49384fade44ae016a2faa/tierpt/report.py), [v3 문서](https://github.com/thuygom/TieRPT/blob/255fb5239baf421fdae49384fade44ae016a2faa/docs/report-v3.md), [quality](https://github.com/thuygom/TieRPT/blob/255fb5239baf421fdae49384fade44ae016a2faa/tierpt/quality.py)
+| 항목 | 기록할 내용 |
+|---|---|
+| 기여와 출처 | 관련 이슈·기여 ID, 공개가 허용된 프로젝트명·참조 또는 비공개 식별자 |
+| 확인 범위 | 확인일, 소스 버전, 문서 읽기·정적 코드 확인·실행 중 실제 수행한 방법 |
+| 확인한 동작 | 입력, 처리·분기, 출력, 오류·권한·저장 경계 |
+| 업무 가설 | 동작에서 도출한 판단 규칙과 예외, 연결할 SOP·PRD ID |
+| 남은 검증 | 실제 배포, 현업 수용, 품질·시간·비용 중 아직 확인하지 않은 내용 |
 
-GomCrawl과 TieRPT는 위 링크의 commit으로 고정했습니다. IScribe와 writingAgent의 master 링크는 이후 변경될 수 있습니다. 다음 관찰에서 [코드 근거 양식](../templates/code-evidence.md)에 확인한 commit을 새로 기록합니다. 배포 여부와 품질 성과는 별도 근거가 필요합니다.
+접수한 프로젝트를 공통 기준이나 공식 연동으로 자동 채택하지 않습니다. 관리자의 프로젝트에도 같은 기준을 적용합니다. 공개 출처를 사용하는 경우 권리자·라이선스 표기는 그대로 유지합니다.
 
-## 해석상 중요한 경계
+## 공통적으로 구분할 것
 
-1. 중간 청크의 success가 완성된 회의록을 뜻하지 않습니다.
-2. 답장 초안과 일반 노트 분석은 목적과 출력이 다를 수 있습니다.
-3. 기사 관계가치(축하·안부·대화 소재)는 고객의 구매 니즈 확인과 다릅니다.
-4. 인용 구절·숫자 포함 검사는 주장의 의미적 타당성을 완전히 보장하지 않습니다.
-5. 자사제품의 승인 기능과 고객 근거를 연결하는 전용 업무는 이번 검증 대상인 제안입니다.
+1. 중간 처리 성공과 최종 업무 완료는 다릅니다.
+2. 초안 생성과 발송·저장·인계 완료는 다릅니다.
+3. 접촉 계기와 고객의 구매 니즈 확인은 다릅니다.
+4. 인용 포함 검사와 주장의 의미적 타당성 판단은 다릅니다.
+5. 정적 구현, 운영 실행, 현업 채택과 성능 측정은 각각 근거가 필요합니다.
 
 ## 방법론 참고
 
