@@ -6,6 +6,7 @@ from collections import defaultdict
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 import sys
+from workflow_registry import load_workflows
 
 ROOT = Path(__file__).resolve().parents[1]
 RUN_FIELDS = ("evaluation_round", "case_id", "variant", "output_type", "status", "attempts",
@@ -36,6 +37,7 @@ def percentage(a, b):
 
 def summarize(cases, runs, include_synthetic=False):
     registry = {}
+    output_types = {output for workflow in load_workflows() for output in workflow['outputs']}
     for case in cases:
         key = case["case_id"]
         if not key or key in registry:
@@ -44,7 +46,7 @@ def summarize(cases, runs, include_synthetic=False):
             raise ValueError(f"Invalid source_type: {key}")
         if case["split"] not in ("development", "holdout", "example_only"):
             raise ValueError(f"Invalid split: {key}")
-        if case["output_type"] not in ("N1", "N2", "B1", "B2"):
+        if case["output_type"] not in output_types:
             raise ValueError(f"Invalid output_type: {key}")
         registry[key] = case
     seen, groups = set(), defaultdict(list)

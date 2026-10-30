@@ -10,3 +10,7 @@ reports/tex/*.out
 reports/tex/*.toc
 reports/tex/main.pdf
 reports/tex/build-console.txt
+dist/
+local-deploy/
+
+node_modules/

@@ -1,0 +1,18 @@
+[
+  {
+    "slug": "notes",
+    "prefix": "N",
+    "name": "노트·회의록",
+    "outputs": {"N1": "개인·모바일 노트", "N2": "팀 공유 회의록"},
+    "sop_stages": 12,
+    "prd_requirements": 12
+  },
+  {
+    "slug": "company-analysis",
+    "prefix": "B",
+    "name": "기업·영업 분석",
+    "outputs": {"B1": "기업·제품 사실 리포트", "B2": "제품 연결·영업 판단"},
+    "sop_stages": 14,
+    "prd_requirements": 12
+  }
+]

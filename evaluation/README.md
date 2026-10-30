@@ -6,6 +6,8 @@
 
 ## 1. 출력 유형과 평가 단위를 먼저 고정합니다
 
+아래는 현재 등록된 두 업무군입니다. 집계 도구가 허용하는 출력 유형은 [업무군 등록부](../workflows/registry.json)에서 읽습니다. 다른 분야는 [새 업무군 등록 절차](../CONTRIBUTING.md)를 거쳐 유형·완료 조건을 등록한 뒤 집계합니다. 제안 단계의 분야를 기존 유형에 억지로 맞추지 않습니다.
+
 | 유형 | 결과 | 수용 기준에서 확인할 내용 |
 |---|---|---|
 | N1 | 개인·모바일 노트 | 빠른 재확인에 필요한 사건·결정·미결·후속 행동, 합의한 저장 조건 |
@@ -118,7 +120,7 @@
 
 Python 3.10 이상에서 `python3 scripts/summarize_evaluation.py`를 실행합니다. 표준 라이브러리만 사용하며 외부 API는 호출하지 않습니다. 기본 CSV는 헤더만 있고 실측값은 없습니다.
 
-- cases.csv: case_id, source_type(real/synthetic), output_type(N1/N2/B1/B2), split(development/holdout/example_only), reference. 공개 원문 대신 승인된 가공 사례 참조를 기록합니다.
+- cases.csv: case_id, source_type(real/synthetic), output_type(업무군 등록부의 유형, 현재 N1/N2/B1/B2), split(development/holdout/example_only), reference. 공개 원문 대신 승인된 가공 사례 참조를 기록합니다.
 - runs.csv: evaluation_round, case_id, variant(baseline/proposed), output_type, status(completed/held/failed/pending), attempts, supported_claims, total_claims, required_correct, required_total, review_seconds, edit_seconds, elapsed_seconds, cost, currency.
 - 한 행은 평가 회차 × 고유 사례 × 조건입니다. 동일 키의 중복은 오류입니다. 재시도는 새 행을 만들지 않고 attempts와 시간·비용에 누적합니다.
 - 접수한 모든 사례를 pending 행부터 등록합니다. 도구는 CSV 밖의 누락 사례를 알 수 없으므로 평가 담당자가 모집단·분모와 대조합니다.

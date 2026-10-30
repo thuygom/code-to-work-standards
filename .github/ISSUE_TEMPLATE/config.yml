@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 웹에서 사례 작성하기
+    url: https://standard.linh.day/
+    about: 분야를 고르고 사례 파일을 불러온 뒤 GitHub 이슈로 제출합니다.
