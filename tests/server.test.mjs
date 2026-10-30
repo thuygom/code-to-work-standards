@@ -27,3 +27,12 @@ test('public server allows only built assets and rejects methods, traversal and 
   });
   assert.equal(malformed, 400);
 });
+
+test('legacy tunnel host redirects to the canonical submission origin', async t => {
+  const server = createSiteServer({ origin:'https://standard.linh.day', trustProxy:true });
+  await new Promise(resolve => server.listen(0,'127.0.0.1',resolve));
+  t.after(() => new Promise(resolve => server.close(resolve)));
+  const response = await fetch(`http://127.0.0.1:${server.address().port}/?contribution=example`,{redirect:'manual'});
+  assert.equal(response.status,308);
+  assert.equal(response.headers.get('location'),'https://standard.linh.day/?contribution=example');
+});

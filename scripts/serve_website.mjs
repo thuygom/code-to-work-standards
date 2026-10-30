@@ -33,6 +33,9 @@ export function createSiteServer(options = {}) {
     res.setHeader('X-Frame-Options', 'DENY');
     const apiPath = req.url.split('?')[0];
     if (apiPath.startsWith('/api/')) { void api(req, res, apiPath); return; }
+    if (options.trustProxy && options.origin && req.headers.host !== new URL(options.origin).host) {
+      res.writeHead(308, { Location: `${options.origin}${req.url.startsWith('/') ? req.url : '/'}` }); res.end(); return;
+    }
     if (!['GET', 'HEAD'].includes(req.method)) {
       res.writeHead(405, { Allow: 'GET, HEAD' }); res.end(); return;
     }
