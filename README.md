@@ -8,7 +8,7 @@
 
 [PDF 27쪽 읽기](reports/workflow-standards-v0.1.pdf) · [PDF 해설](docs/pdf-reading-guide.md) · [English](README.en.md) · [기여 시작하기](CONTRIBUTING.md) · [이슈 제안](https://github.com/thuygom/code-to-work-standards/issues/new/choose)
 
-**[기여 웹사이트 열기 ↗](https://standard.linh.day/)** — MoW·PRD·SOP와 경험·인사이트를 찾아 가져가고, 웹에서 본문·첨부를 접수하거나 GitHub 이슈로 제안할 수 있습니다. [웹사이트 개발·운영 안내](website/README.md)
+**[기여 웹사이트 열기 ↗](https://standard.linh.day/)** — MoW·PRD·SOP와 경험·인사이트를 찾아 가져가고, 웹에서 본문·첨부를 접수하거나 GitHub 이슈로 제안할 수 있습니다. 웹사이트와 앱의 소스 코드는 별도로 관리합니다.
 
 ## 에이전트는 일을 끝냈는데, 우리의 일은 왜 남아 있을까요?
 
@@ -156,6 +156,6 @@ The first domains are meeting notes/minutes and company research/product-fit ana
 
 ## 공개 자료실
 
-[초기 자료 18개](library/README.md)는 회의록·기업분석·할 일·일정의 SOP·PRD·MoW, 적용 인사이트와 외부 지침을 참고한 양식입니다. 실제 사용자 기여 수나 현업 검증 실적으로 표시하지 않습니다. 출처 프로젝트명은 해당 개별 자료에서 다룹니다. [접수 DB·검토·공개·복구 안내](docs/contribution-storage.md)를 함께 제공합니다.
+[초기 자료 18개](library/README.md)는 회의록·기업분석·할 일·일정의 SOP·PRD·MoW, 적용 인사이트와 외부 지침을 참고한 양식입니다. 실제 사용자 기여 수나 현업 검증 실적으로 표시하지 않습니다. 출처 프로젝트명은 해당 개별 자료에서 다룹니다. [접수·검토·공개 안내](docs/contribution-storage.md)를 함께 제공합니다.
 
 2026-10-30 PDF 공개 개정본은 특정 제품의 내부 구현 설명을 공통 문서에서 제거했습니다. 기존 N/B 단계·요구 ID와 현업 검증 전 상태는 유지합니다. 최신 웹 접수·자료실 기능은 위 운영 안내를 기준으로 확인합니다.

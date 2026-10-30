@@ -5,35 +5,13 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:17-alpine
-        env:
-          POSTGRES_USER: standard_owner
-          POSTGRES_PASSWORD: disposable-test-only
-          POSTGRES_DB: standard_test
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd "pg_isready -U standard_owner -d standard_test"
-          --health-interval 5s --health-timeout 3s --health-retries 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: '22'
-          cache: npm
-      - run: npm ci --ignore-scripts
       - name: Check documentation
         run: python3 scripts/check_repository.py
       - name: Validate evaluation records
         run: python3 scripts/summarize_evaluation.py
       - name: Check workflow registration
         run: PYTHONPATH=scripts python3 -m unittest discover -s tests -v
-      - name: Build public website assets
-        run: python3 scripts/build_website.py
-      - name: Check contribution website and server
-        env:
-          TEST_DATABASE_URL: postgresql://standard_owner:disposable-test-only@127.0.0.1:5432/standard_test
-        run: node --test tests/*.test.mjs
